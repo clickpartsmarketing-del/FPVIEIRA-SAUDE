@@ -1,0 +1,18 @@
+# dados de contrato — nunca subir
+*.xlsx
+*.xlsm
+*.xls
+*.zip
+*.pdf
+_chat*.txt
+*.opus
+*.jpg
+*.jpeg
+*.png
+*.mp4
+
+# ambiente
+.env*
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPV Saúde 094 — Painel do Engenheiro + Reporte de Campo</title>
+<style>
+:root{--bg:#f6f5f0;--card:#fff;--ink:#1a1a18;--mut:#6b6a64;--line:#e4e2da;--green:#0f6e56;--greenbg:#e1f5ee;--amber:#854f0b;--amberbg:#faeeda;--red:#a32d2d;--redbg:#fcebeb;--blue:#185fa5;--bluebg:#e6f1fb;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+header{background:#1a1a18;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{font-size:16px;font-weight:600}
+header .tag{font-size:11px;background:#3a3a36;padding:3px 10px;border-radius:99px;color:#d8d6cc}
+nav{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{flex:1;padding:12px 6px;border:0;background:none;font-size:13.5px;font-weight:600;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:var(--ink);border-bottom-color:#1a1a18}
+main{max-width:900px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;text-align:center}
+.kpi b{display:block;font-size:20px}
+.kpi span{font-size:11.5px;color:var(--mut)}
+h2{font-size:15px;margin-bottom:8px}
+h3{font-size:13.5px;margin:10px 0 6px}
+textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;font-family:inherit}
+.btn{display:inline-block;border:0;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;background:#1a1a18;color:#fff}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.mini{padding:5px 10px;font-size:12px}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px}
+.p-ok{background:var(--greenbg);color:var(--green)}
+.p-ped{background:var(--amberbg);color:var(--amber)}
+.p-conf{background:var(--redbg);color:var(--red)}
+.p-info{background:var(--bluebg);color:var(--blue)}
+.unit{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:8px;background:#fff;overflow:hidden}
+.unit>button{width:100%;border:0;background:none;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;cursor:pointer;gap:8px;text-align:left}
+.unit .body{display:none;padding:0 14px 12px;border-top:1px solid var(--line)}
+.unit.open .body{display:block}
+.unit ul{list-style:none;margin:8px 0}
+.unit li{padding:3px 0;font-size:13.5px;border-bottom:1px dashed #eeece4}
+.right{margin-left:auto;display:flex;gap:6px;align-items:center;flex-shrink:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip.on{background:#1a1a18;color:#fff;border-color:#1a1a18}
+input[type=text],input[type=number],select{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:14px;background:#fff}
+label{font-size:12.5px;font-weight:600;color:var(--mut);display:block;margin:10px 0 4px}
+.matrow{display:flex;gap:6px;align-items:center;margin:4px 0}
+.matrow input.q{width:64px;text-align:center}
+.matrow .x{border:0;background:var(--redbg);color:var(--red);border-radius:6px;width:28px;height:28px;cursor:pointer;font-weight:700}
+pre.msg{background:#eef7ee;border:1px solid #cde3cd;border-radius:8px;padding:12px;font-size:13px;white-space:pre-wrap;font-family:inherit;margin:10px 0}
+.note{font-size:12px;color:var(--mut);margin-top:6px}
+.warn{background:var(--amberbg);border:1px solid #ecd9b0;border-radius:8px;padding:10px 12px;font-size:13px;margin:8px 0}
+.money{font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.copy-ok{color:var(--green);font-size:12px;font-weight:600;display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>FP VIEIRA · SAÚDE 094 — Rio das Ostras</h1>
+  <span class="tag">Painel do Engenheiro</span>
+  <span class="tag">Reporte de Campo</span>
+</header>
+<nav>
+  <button class="on" onclick="tab(0,this)">📊 Painel (Leony)</button>
+  <button onclick="tab(1,this)">📝 Reporte (Campo)</button>
+  <button onclick="tab(2,this)">📐 Regras do jogo</button>
+</nav>
+<main>
+
+<!-- ================= TAB 0 : PAINEL ================= -->
+<section id="t0">
+  <div class="card">
+    <h2>1 · Cole aqui o export do grupo (WhatsApp → Exportar conversa → sem mídia)</h2>
+    <textarea id="raw" placeholder="Cole o conteúdo do _chat.txt aqui... (funciona com export de iPhone e Android)"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn" onclick="processar()">Processar relatos</button>
+      <input type="file" id="file" accept=".txt" style="font-size:12px" onchange="lerArquivo(this)">
+    </div>
+  </div>
+
+  <div id="painel" style="display:none">
+    <div class="kpis">
+      <div class="kpi"><b id="kDias">0</b><span>dias com atividade</span></div>
+      <div class="kpi"><b id="kUnid">0</b><span>unidades atendidas</span></div>
+      <div class="kpi"><b id="kExec">0</b><span>relatos executados</span></div>
+      <div class="kpi"><b id="kFoto">0</b><span>fotos (evidência)</span></div>
+      <div class="kpi"><b id="kRS" class="money">R$ 0</b><span>estimativa p/ medição*</span></div>
+    </div>
+    <div class="warn">💰 Lembrete do contrato: <b>serviço medido puxa a Administração Local</b>. Em março (medição cheia) o bloco ADM+MO pagou R$ 189 mil; em abril (medição magra) pagaram só 1/3. Cada relato completo aqui embaixo defende esse bloco.</div>
+
+    <div class="card">
+      <h2>2 · Fechamento por unidade <span class="pill p-info">formato que você pediu no grupo em 02/07</span></h2>
+      <div class="note">Toque na unidade → confira → <b>Copiar fechamento</b> gera a mensagem consolidada pronta.</div>
+      <div id="unidades" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h2>3 · Pedidos de material aguardando execução <span class="pill p-ped">não medir ainda</span></h2>
+      <div class="note">Lista de compra ≠ serviço executado. Em junho essa confusão quase custou R$ 9,5 mil de glosa (Sal Sal).</div>
+      <ul id="pedidos" style="list-style:none;margin-top:8px"></ul>
+    </div>
+
+    <div class="card">
+      <h2>4 · Para cobrar no grupo <span class="pill p-conf">relato incompleto</span></h2>
+      <div class="note">Relatos sem unidade ou sem quantidade — cada botão copia a cobrança pronta.</div>
+      <ul id="cobrar" style="list-style:none;margin-top:8px"></ul>
+    </div>
+    <p class="note">*Estimativa automática pelas regras EMOP do contrato (pontos compostos, fornecimento e colocação). Serve para acompanhar o mês — a medição oficial passa pelo engenheiro e pelo Edmar.</p>
+  </div>
+</section>
+
+<!-- ================= TAB 1 : REPORTE ================= -->
+<section id="t1" style="display:none">
+  <div class="card">
+    <h2>Registro de serviço — 1 minuto, no padrão que vira medição</h2>
+    <label>Unidade *</label>
+    <input type="text" id="rUnid" list="lu" placeholder="Comece a digitar...">
+    <datalist id="lu"></datalist>
+    <label>Local / sala</label>
+    <input type="text" id="rLocal" placeholder="ex.: vestiário masculino, sala 02, recepção...">
+    <label>Tipo de serviço *</label>
+    <div class="chips" id="rTipo">
+      <span class="chip" data-v="TROCA">🔁 Troca</span>
+      <span class="chip" data-v="INSTALAÇÃO NOVA">🆕 Instalação nova</span>
+      <span class="chip" data-v="REPARO">🔧 Reparo</span>
+    </div>
+    <label>O que foi feito *</label>
+    <input type="text" id="rDesc" placeholder="ex.: circuito de iluminação individual na sala de fisioterapia">
+    <label>Material utilizado — toque para adicionar</label>
+    <div class="chips" id="rChips"></div>
+    <div id="rMats"></div>
+    <label>Medidas (se tiver: metros, m², dimensões)</label>
+    <input type="text" id="rMed" placeholder="ex.: 6m de cabo, parede 3x2,5m">
+    <label>Status *</label>
+    <div class="chips" id="rStatus">
+      <span class="chip" data-v="✅ Concluído">✅ Concluído</span>
+      <span class="chip" data-v="⏳ Continua amanhã">⏳ Continua amanhã</span>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn" onclick="gerar()">Gerar mensagem</button>
+      <span class="note">📷 Não esquece: foto de ANTES e DEPOIS no grupo</span>
+    </div>
+    <pre class="msg" id="rOut" style="display:none"></pre>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn sec" id="rCopy" style="display:none" onclick="copiar(document.getElementById('rOut').textContent,this)">📋 Copiar p/ WhatsApp</button>
+      <span class="copy-ok">copiado ✓</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 2 : REGRAS ================= -->
+<section id="t2" style="display:none">
+  <div class="card">
+    <h2>As 5 regras que fazem o serviço virar dinheiro</h2>
+    <h3>1 · Sempre diga a UNIDADE (o prédio, não só a sala)</h3>
+    <p class="note">Em junho, 10 relatos de "sala 02, sala ACS..." ficaram sem prédio — R$ 2.500 quase sem endereço na memória de cálculo.</p>
+    <h3>2 · PEDIDO é pedido, EXECUTADO é executado</h3>
+    <p class="note">"Vamos precisar de 20 tomadas" ≠ "instaladas 20 tomadas". A lista do Sal Sal (24/06) era pedido e quase virou medição de R$ 9,5 mil — glosa na certa. Depois de instalar, manda o relato de executado.</p>
+    <h3>3 · Quantidade + modelo em TUDO</h3>
+    <p class="note">"Lâmpadas de 50W" não existe na tabela EMOP — uma foto da etiqueta define a equivalência e libera ~R$ 900.</p>
+    <h3>4 · TROCA ou INSTALAÇÃO NOVA — sempre diga qual</h3>
+    <p class="note">Chuveiro trocado = R$ 92. Chuveiro instalado com cano novo = R$ 570. A palavra "com cano novo" no relato do Neilson (06/07) valeu R$ 956 a mais.</p>
+    <h3>5 · Fechou a unidade? Manda o FECHAMENTO consolidado</h3>
+    <p class="note">Formato do Leony: "Unidade X: foi realizado troca de 50 lâmpadas de 1,20m, 30m de cabo 2,5mm". É esse texto que vira medição sem retrabalho.</p>
+  </div>
+  <div class="card">
+    <h2>Por que isso importa (números reais de junho)</h2>
+    <p class="note">• Serviços capturados no grupo + diário: <b>R$ 22.947 medidos</b> + R$ 9.573 aguardando 1 resposta.<br>
+    • O relato completo defende o bloco ADM+MO: diferença entre mês cheio e cortado = <b>R$ 126 mil/mês</b>.<br>
+    • Contrato de R$ 12,28 milhões precisa de R$ 1,02 milhão/mês de medição — cada mensagem bem feita conta.</p>
+  </div>
+</section>
+</main>
+
+<script>
+const UNIDADES = ["PRONTO SOCORRO","HOSPITAL MUNICIPAL","UPA","REFEITÓRIO UPA","POSTO DE SAÚDE ÂNCORA","POSTO SAL SAL","POSTO CANTAGALO","POSTO EDMÉIA","POSTO ROCHA LEÃO","POSTO NOVA ESPERANÇA","POSTO RECANTO","ESF RECANTO","EXTENSÃO DO BOSQUE","SAÚDE MENTAL","CENTRO DE REABILITAÇÃO","CASA DA CRIANÇA","CASA DE RECUPERAÇÃO","NELSON MARTINS","FARMÁCIA MUNICIPAL","SEMUSA","DESGE","PRÉ-OPERATÓRIO","COAD","PREFEITURA","GALPÃO RECANTO","SAE","CAMINHÃO CATARATA/TENDA","POSTO ESPERANÇA"];
+const ALIAS = {"ANCORA":"POSTO DE SAÚDE ÂNCORA","SAL SAL":"POSTO SAL SAL","SALSAL":"POSTO SAL SAL","CANTAGALO":"POSTO CANTAGALO","EDMEIA":"POSTO EDMÉIA","ROCHA LEAO":"POSTO ROCHA LEÃO","NOVA ESPERANCA":"POSTO NOVA ESPERANÇA","HOSPITAL":"HOSPITAL MUNICIPAL","HOSPITALAR":"HOSPITAL MUNICIPAL","PRONTO SOCORRO":"PRONTO SOCORRO","REABILITACAO":"CENTRO DE REABILITAÇÃO"};
+const MATS = ["Lâmpada LED 9W","Lâmpada tubular 18W (1,20m)","Lâmpada tubular 9W (60cm)","Lâmpada 30W","Lâmpada 50W","Plafonier","Luminária slim","Luminária tartaruga","Refletor","Tomada 20A","Tomada simples 10A","Tomada dupla","Caixa sobrepor 4x2","Canaleta (m)","Cabo 2,5mm (m)","Cabo 4mm (m)","Eletroduto 3/4 (m)","Disjuntor 20A","Disjuntor bipolar 20A","DPS","Chuveiro","Interruptor","Fechadura","Torneira","Haste de aterramento"];
+
+const norm = s => (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase();
+
+function tab(i,btn){document.querySelectorAll("nav button").forEach(b=>b.classList.remove("on"));btn.classList.add("on");
+ [0,1,2].forEach(n=>document.getElementById("t"+n).style.display = n===i?"":"none");}
+
+/* ---------- PARSER ---------- */
+const RX_IOS=/^\[(\d{2}\/\d{2}\/\d{4}),?\s+(\d{2}:\d{2})(?::\d{2})?\]\s+([^:]+):\s?(.*)$/;
+const RX_AND=/^(\d{2}\/\d{2}\/\d{4})[,\s]+(\d{2}:\d{2})\s+-\s+([^:]+):\s?(.*)$/;
+const PEDIDO_RX=/prefer[eê]ncia|vai precisar|precisamos|solicito|pedido de material|a adquirir|or[cç]ament|comprar|material para (a|as|o|os)\b|lista.*(amanh|pedir)|necess[áa]ri[oa]|torna-se|recomenda[çc][ãa]o do fabricante/i;
+const EXEC_RX=/instalad|trocad|substitu|realizad|executad|conclu[ií]|refeit|religad|reparad|feita?s? (no|na|em)|servi[cç]o executado/i;
+const SYS_RX=/criou o grupo|adicionou|removeu|mudou|criptografia|entrou usando/i;
+
+function lerArquivo(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();
+ r.onload=e=>{document.getElementById("raw").value=e.target.result;processar();};r.readAsText(f,"utf-8");}
+
+function parseChat(txt){
+  const linhas=txt.replace(/‎/g,"").split(/\r?\n/); const msgs=[];
+  for(const ln of linhas){
+    const m=ln.match(RX_IOS)||ln.match(RX_AND);
+    if(m){msgs.push({data:m[1],hora:m[2],quem:m[3].trim(),texto:[m[4]]});}
+    else if(msgs.length&&ln.trim()!==""){msgs[msgs.length-1].texto.push(ln);}
+  }
+  return msgs;
+}
+
+function detectaUnidade(t){
+  const T=norm(t);
+  for(const u of UNIDADES){if(T.includes(norm(u)))return u;}
+  for(const k in ALIAS){if(T.includes(k))return ALIAS[k];}
+  return null;
+}
+
+function extraiMateriais(linhas){
+  const itens=[];
+  for(const l of linhas){
+    let m=l.match(/^\s*(\d+[.,]?\d*)\s*(m\b|mts?\b|metros?\b|un\b|und\b|pares?\b|rolos?\b)?\s*(?:de\s+)?(.{3,})/i);
+    if(m&&!/^\d{2}\/\d{2}/.test(l)){itens.push({q:parseFloat(m[1].replace(",", ".")),un:(m[2]||"un").toLowerCase(),desc:m[3].trim()});continue;}
+    m=l.match(/^\s*(.{3,}?)\s+(\d+[.,]?\d*)\s*(m|mts?|metros?)\s*$/i);
+    if(m){itens.push({q:parseFloat(m[2].replace(",", ".")),un:"m",desc:m[1].trim()});}
+  }
+  return itens;
+}
+
+/* ---------- ESTIMADOR EMOP (regras do contrato 005/2026) ---------- */
+function estimaRegistro(reg){
+  let rs=0, conferir=[], det=[];
+  const all=norm(reg.itens.map(i=>i.desc).join(" | "));
+  const temInfra=/CAIXA|CANALETA|CABO|ELETRODUTO|CONDUITE/.test(all);
+  let caboAbsorvido=false;
+  for(const it of reg.itens){
+    const d=norm(it.desc); const q=it.q||1; const metros=/^m/.test(it.un);
+    if(/TOMADA/.test(d)&&temInfra&&!/MACHO/.test(d)){const p=/20\s*A/.test(d)?361.51:278.66;rs+=q*p;det.push(q+"x ponto de tomada ("+p.toFixed(2)+")");caboAbsorvido=true;continue;}
+    if(/INTERRUPTOR|ENTERRUP/.test(d)&&temInfra){rs+=q*292.89;det.push(q+"x ponto de luz");caboAbsorvido=true;continue;}
+    if(/ROLO/.test(d)&&/CABO/.test(d)){conferir.push(q+" rolo(s) de cabo — metragem?");continue;}
+    if(/CABO/.test(d)&&metros){if(caboAbsorvido){det.push(q+"m cabo (absorvido no ponto)");}else{const p=/4\s*MM/.test(d)?5.42:(/10\s*MM/.test(d)?10.16:3.93);rs+=q*p;det.push(q+"m cabo");}continue;}
+    if(/LAMPADA|LUMINARIA|TARTARUGA|REFLETOR|PLAFON/.test(d)){
+      if(/9\s*W/.test(d)&&/TUBULAR|60/.test(d)){rs+=q*10;det.push(q+"x lâmp tub 9W");}
+      else if(/9\s*W/.test(d)){rs+=q*14.97;det.push(q+"x lâmp LED 9W");}
+      else if(/18\s*W|1,?20|TUBULAR LED|LED TUBULAR|TUBULAR/.test(d)&&/LAMPADA/.test(d)){rs+=q*11.33;det.push(q+"x lâmp tubular 18W");}
+      else if(/REDONDA/.test(d)){rs+=q*14.97;det.push(q+"x lâmp LED bulbo");}
+      else if(/TARTARUGA/.test(d)){rs+=q*66.73;det.push(q+"x arandela/tartaruga");}
+      else if(/REFLETOR/.test(d)){rs+=q*47.79;det.push(q+"x refletor");}
+      else if(/PLAFON/.test(d)){conferir.push(q+" plafonier — item em pleito (18.47)");}
+      else if(/LUMINARIA/.test(d)&&/INSTALAD|CALHA|SLIM|SLIN/.test(d)){rs+=q*95.63;det.push(q+"x luminária calha");}
+      else{conferir.push(q+"x "+it.desc+" — equivalência EMOP a definir");}
+      continue;}
+    if(/DISJUNTOR|DIJUNTOR|FIJUNTOR/.test(d)){
+      if(/125|150|160/.test(d)){rs+=q*273.49;det.push(q+"x disj 125-160A");}
+      else if(/BIPOLAR|BIFASIC/.test(d)){rs+=q*28.68;det.push(q+"x disj bipolar");}
+      else if(/TRIPOLAR|TRIFASIC/.test(d)){rs+=q*39.19;det.push(q+"x disj tripolar");}
+      else if(/40|50|63|GERAL/.test(d)){rs+=q*13.26;det.push(q+"x disj 40-63A");}
+      else{rs+=q*12.72;det.push(q+"x disj mono");}
+      continue;}
+    if(/CHUVEIRO/.test(d)){rs+=q*92.25;det.push(q+"x chuveiro (fornec.)");if(/CANO|TUBULA/.test(all)){rs+=q*478.27;det.push(q+"x instalação c/ tubulação");}continue;}
+    if(/QUADRO|CAIXA PADRAO|CAIXA PARA \d+ DISJ|CAIXA DE DISJUNTOR/.test(d)){rs+=q*168.43;det.push(q+"x quadro (conferir capacidade)");continue;}
+    if(/FECHADURA/.test(d)){rs+=q*75.08;det.push(q+"x ferragens porta");continue;}
+    if(/TORNEIRA/.test(d)&&!/BOIA/.test(d)){rs+=q*49.97;det.push(q+"x torneira");continue;}
+    if(/DPS|FOTOCELULA|FOTO CELULA|HASTE|ATERRAMENTO/.test(d)){conferir.push(q+"x "+it.desc+" — pleito (sem item no contrato)");continue;}
+    if(/BUCHA|PARAFUSO|FITA|ABRACADEIRA|COLA|BOCA|CURVA|LUVA|POLCA|PORCA|TAMPA/.test(d)){det.push(it.desc+" (absorvido)");continue;}
+    if(/CAIXA|CANALETA|ELETRODUTO|CONDUITE/.test(d)){det.push(it.desc+" (infra do ponto)");continue;}
+    conferir.push((q?q+"x ":"")+it.desc+" — classificar");
+  }
+  return {rs,conferir,det};
+}
+
+/* ---------- PROCESSAMENTO ---------- */
+let REGS=[];
+function processar(){
+  const txt=document.getElementById("raw").value;
+  if(!txt.trim()){alert("Cole o texto do export primeiro.");return;}
+  const msgs=parseChat(txt);
+  let fotos=0; REGS=[]; const ctxUnidade={};
+  for(const m of msgs){
+    const corpo=m.texto.join("\n");
+    if(SYS_RX.test(corpo))continue;
+    if(/<anexado|<attached|arquivo anexado|documento omitido/i.test(corpo)){fotos++;continue;}
+    const itens=extraiMateriais(m.texto);
+    const un=detectaUnidade(corpo)|| (ctxUnidade[m.quem+m.data]||null);
+    if(detectaUnidade(corpo))ctxUnidade[m.quem+m.data]=detectaUnidade(corpo);
+    const ehPedido=PEDIDO_RX.test(corpo);
+    const ehExec=EXEC_RX.test(corpo);
+    if(itens.length===0&&!ehExec)continue;
+    let status = ehPedido&&!ehExec ? "PEDIDO" : (ehExec||itens.length>=2 ? "EXECUTADO" : "CONFERIR");
+    REGS.push({data:m.data,quem:m.quem.split(" ")[0],unidade:un,itens,status,resumo:corpo.split("\n")[0].slice(0,90).replace(/['"´`]/g,""),corpo});
+  }
+  render(fotos);
+}
+
+function render(fotos){
+  document.getElementById("painel").style.display="";
+  const exec=REGS.filter(r=>r.status==="EXECUTADO");
+  const ped=REGS.filter(r=>r.status==="PEDIDO");
+  const dias=new Set(exec.map(r=>r.data));
+  const unids={};
+  let totalRS=0;
+  for(const r of exec){
+    const u=r.unidade||"(SEM UNIDADE)";
+    if(!unids[u])unids[u]={regs:[],rs:0,conf:[]};
+    const e=estimaRegistro(r);
+    r.est=e; unids[u].regs.push(r); unids[u].rs+=e.rs; unids[u].conf.push(...e.conferir);
+    totalRS+=e.rs;
+  }
+  document.getElementById("kDias").textContent=dias.size;
+  document.getElementById("kUnid").textContent=Object.keys(unids).filter(u=>u!=="(SEM UNIDADE)").length;
+  document.getElementById("kExec").textContent=exec.length;
+  document.getElementById("kFoto").textContent=fotos;
+  document.getElementById("kRS").textContent="R$ "+totalRS.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  const cont=document.getElementById("unidades");cont.innerHTML="";
+  const ordem=Object.keys(unids).sort((a,b)=>unids[b].rs-unids[a].rs);
+  for(const u of ordem){
+    const d=unids[u];
+    const div=document.createElement("div");div.className="unit";
+    const nConf=d.conf.length;
+    div.innerHTML=`<button onclick="this.parentNode.classList.toggle('open')">
+      <span>${u==="(SEM UNIDADE)"?"⚠️ ":""}${u}</span>
+      <span class="right"><span class="pill p-ok money">R$ ${d.rs.toLocaleString("pt-BR",{minimumFractionDigits:2})}</span>
+      ${nConf?`<span class="pill p-conf">${nConf} conferir</span>`:""}
+      <span class="pill p-info">${d.regs.length} relatos</span></span></button>
+      <div class="body">
+        <ul>${d.regs.map(r=>`<li><b>${r.data}</b> · ${r.quem} — ${r.est.det.join(", ")||r.resumo}${r.est.conferir.length?` <span class="pill p-conf">${r.est.conferir.join(" · ")}</span>`:""}</li>`).join("")}</ul>
+        <button class="btn mini" onclick="copiarFechamento('${u.replace(/'/g,"")}')">📋 Copiar fechamento da unidade</button>
+      </div>`;
+    cont.appendChild(div);
+  }
+
+  const pedUl=document.getElementById("pedidos");pedUl.innerHTML=ped.length?"":"<li class='note'>nenhum pedido pendente identificado</li>";
+  for(const r of ped){
+    const li=document.createElement("li");li.style.padding="6px 0";li.style.borderBottom="1px dashed var(--line)";
+    li.innerHTML=`<span class="pill p-ped">PEDIDO</span> <b>${r.data}</b> ${r.unidade||"?"} · ${r.quem} — ${r.resumo} <button class="btn mini sec" onclick="copiar('${(r.unidade||"pessoal")}: o material pedido em ${r.data} já foi instalado? Manda o relato de EXECUTADO com as quantidades pra entrar na medição 🙏',this)">cobrar execução</button>`;
+    pedUl.appendChild(li);
+  }
+
+  const cobUl=document.getElementById("cobrar");cobUl.innerHTML="";
+  const semU=exec.filter(r=>!r.unidade);
+  for(const r of semU){
+    const li=document.createElement("li");li.style.padding="6px 0";li.style.borderBottom="1px dashed var(--line)";
+    li.innerHTML=`<b>${r.data}</b> ${r.quem} — "${r.resumo}" <button class="btn mini sec" onclick="copiar('${r.quem}, o serviço de ${r.data} (${r.resumo.replace(/'/g,"")}) foi em qual UNIDADE? Preciso pro fechamento da medição 📋',this)">perguntar unidade</button>`;
+    cobUl.appendChild(li);
+  }
+  if(!semU.length)cobUl.innerHTML="<li class='note'>todos os relatos executados têm unidade ✓</li>";
+  window._unids=unids;
+}
+
+function copiarFechamento(u){
+  const d=window._unids[u];if(!d)return;
+  const datas=d.regs.map(r=>r.data);
+  const agg={};
+  d.regs.forEach(r=>r.itens.forEach(i=>{const k=i.desc.toLowerCase();agg[k]=(agg[k]||0)+(i.q||1);}));
+  let msg=`✅ FECHAMENTO — ${u}\nPeríodo: ${datas[0]} a ${datas[datas.length-1]}\n\nFoi realizado:\n`;
+  d.regs.forEach(r=>{msg+=`• ${r.data}: ${r.resumo}\n`;});
+  msg+=`\nMaterial total:\n`;
+  Object.keys(agg).forEach(k=>{msg+=`• ${agg[k]} ${k}\n`;});
+  msg+=`\nEstimativa p/ medição: R$ ${d.rs.toLocaleString("pt-BR",{minimumFractionDigits:2})}\n— FP Vieira · Saúde 094`;
+  copiar(msg,null);alert("Fechamento copiado! Cola no grupo ou manda pro Edmar.");
+}
+
+/* ---------- TAB REPORTE ---------- */
+const dl=document.getElementById("lu");UNIDADES.forEach(u=>{const o=document.createElement("option");o.value=u;dl.appendChild(o);});
+const chipsBox=document.getElementById("rChips");
+MATS.forEach(m=>{const c=document.createElement("span");c.className="chip";c.textContent=m;c.onclick=()=>addMat(m);chipsBox.appendChild(c);});
+document.querySelectorAll("#rTipo .chip,#rStatus .chip").forEach(c=>c.onclick=()=>{c.parentNode.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");});
+function addMat(nome){
+  const row=document.createElement("div");row.className="matrow";
+  row.innerHTML=`<input type="number" class="q" value="1" min="0.5" step="0.5"><span style="flex:1">${nome}</span><button class="x" onclick="this.parentNode.remove()">×</button>`;
+  document.getElementById("rMats").appendChild(row);
+}
+function gerar(){
+  const u=document.getElementById("rUnid").value.trim();
+  const tipo=document.querySelector("#rTipo .chip.on");
+  const desc=document.getElementById("rDesc").value.trim();
+  const st=document.querySelector("#rStatus .chip.on");
+  if(!u||!tipo||!desc||!st){alert("Preencha: unidade, tipo, o que foi feito e status.");return;}
+  const local=document.getElementById("rLocal").value.trim();
+  const med=document.getElementById("rMed").value.trim();
+  let mats="";
+  document.querySelectorAll("#rMats .matrow").forEach(r=>{mats+=`• ${r.querySelector(".q").value} ${r.querySelector("span").textContent}\n`;});
+  let msg=`🔧 SERVIÇO EXECUTADO — FP VIEIRA\n📍 Unidade: ${u}${local?`\n📌 Local: ${local}`:""}\n🛠 ${tipo.dataset.v}: ${desc}\n`;
+  if(mats)msg+=`\nMaterial utilizado:\n${mats}`;
+  if(med)msg+=`📏 Medidas: ${med}\n`;
+  msg+=`Status: ${st.dataset.v}\n📷 Fotos: antes/depois no grupo`;
+  const out=document.getElementById("rOut");out.textContent=msg;out.style.display="";
+  document.getElementById("rCopy").style.display="";
+}
+function copiar(txt,btn){
+  navigator.clipboard.writeText(txt).then(()=>{
+    if(btn){const ok=btn.parentNode.querySelector(".copy-ok");if(ok){ok.style.display="inline";setTimeout(()=>ok.style.display="none",1600);}else{btn.textContent="copiado ✓";setTimeout(()=>btn.textContent=btn.dataset.t||"copiar",1500);}}
+  });
+}
+const HASH={"#painel":0,"#reporte":1,"#campo":1,"#regras":2};
+function vaiHash(){const i=HASH[location.hash];if(i!==undefined)tab(i,document.querySelectorAll("nav button")[i]);}
+window.addEventListener("hashchange",vaiHash);vaiHash();
+</script>
+</body>
+</html>
