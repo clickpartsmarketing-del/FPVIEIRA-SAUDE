@@ -1,0 +1,95 @@
+{
+  "name": "PATCH: O.S. nova do e-mail NAO descarta (colar no fluxo existente)",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SOhfGG5cudR2rx6P4OpA662K16c33r31rt7YjG-sAGA",
+          "mode": "list",
+          "cachedResultName": "Controle de O.S. - Educação RDO Automação",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SOhfGG5cudR2rx6P4OpA662K16c33r31rt7YjG-sAGA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1408369198,
+          "mode": "list",
+          "cachedResultName": "O.S 2026",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SOhfGG5cudR2rx6P4OpA662K16c33r31rt7YjG-sAGA/edit#gid=1408369198"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "OS": "={{ $json.OS }}",
+            "Unidade": "={{ $json.Unidade }}",
+            "Fiscal": "={{ $json.Fiscal }}",
+            "Classificação": "={{ $json.Classif }}",
+            "Data": "={{ $json.Data }}",
+            "Status": "Pendente",
+            "Serviços": "={{ $json.Servicos }}"
+          },
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [4240, 1200],
+      "id": "patch-append-0001",
+      "name": "OS NOVA - Append na planilha",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EEdRPyzKiqpaqF2H",
+          "name": "Google Sheets FPV"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Converte a O.S. do e-mail p/ o formato do banco do app (os_campo).\n// Data dd/mm/aaaa -> aaaa-mm-dd; nivel I-IV vira classificacao como esta.\nconst d = $input.first().json;\nfunction iso(br){ const m = String(br||'').match(/(\\d{2})\\/(\\d{2})\\/(\\d{4})/); return m ? `${m[3]}-${m[2]}-${m[1]}` : null; }\nreturn [{ json: {\n  numero: parseInt(d.OS, 10) || null,\n  emergencial: false,\n  unidade: d.Unidade || '',\n  fiscal: d.Fiscal || 'Central',\n  classificacao: d.Classif || 'Normal',\n  entrada: iso(d.Data) || new Date().toISOString().slice(0,10),\n  conclusao: null,\n  executor: '',\n  status: 'Pendente',\n  medicao: '',\n  solicitado: d.Servicos || '',\n  servico: '',\n  materiais: '',\n  memoria_calculo: '',\n  foto_urls: []\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4460, 1200],
+      "id": "patch-prep-0002",
+      "name": "Prepara p/ o app"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://lgdnuyreaknxjswrfbjw.supabase.co/rest/v1/os_campo",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_AQUI_A_SERVICE_ROLE_KEY" },
+            { "name": "Authorization", "value": "Bearer COLE_AQUI_A_SERVICE_ROLE_KEY" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "resolution=ignore-duplicates" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [4680, 1200],
+      "id": "patch-supa-0003",
+      "name": "Insere no APP (Supabase)"
+    }
+  ],
+  "connections": {
+    "OS NOVA - Append na planilha": {
+      "main": [[{ "node": "Prepara p/ o app", "type": "main", "index": 0 }]]
+    },
+    "Prepara p/ o app": {
+      "main": [[{ "node": "Insere no APP (Supabase)", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPV Campo · Treinamento</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{fpv:{50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#059669',700:'#047857',900:'#064e3b'}}}}};</script>
+</head>
+<body class="bg-stone-100 text-stone-900">
+<div class="max-w-md mx-auto p-4 pb-16 space-y-4">
+
+  <header class="flex items-center gap-3 pt-4">
+    <div class="w-12 h-12 rounded-xl bg-fpv-500 text-white flex items-center justify-center font-bold">FPV</div>
+    <div>
+      <h1 class="font-black text-xl leading-tight">Treinamento FPV Campo</h1>
+      <p class="text-xs text-stone-500 font-bold">Aprenda no seu ritmo · seu progresso fica salvo neste aparelho</p>
+    </div>
+  </header>
+
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-sm font-bold text-amber-800">
+    📖 Aqui é só LEITURA de treinamento — nada desta página mexe no sistema.
+  </div>
+
+  <a href="equipe.html" class="block bg-white rounded-3xl border-2 border-stone-200 p-5 hover:border-fpv-300">
+    <div class="flex items-center gap-4">
+      <span class="text-4xl">🚨</span>
+      <div class="flex-1">
+        <div class="font-black text-lg">Trilha da EQUIPE</div>
+        <div class="text-sm text-stone-500 font-bold">Emergência e corretiva: registrar O.S., foto, material</div>
+        <div class="mt-2 h-2 bg-stone-100 rounded-full overflow-hidden"><div data-bar="fpv.treino.equipe" data-total="7" class="h-full bg-fpv-500 rounded-full" style="width:0%"></div></div>
+        <div class="text-[11px] font-black text-stone-400 mt-1" data-frac="fpv.treino.equipe" data-total="7">0 de 7 lidos</div>
+      </div>
+      <span class="text-2xl text-stone-300">›</span>
+    </div>
+  </a>
+
+  <a href="almox.html" class="block bg-white rounded-3xl border-2 border-stone-200 p-5 hover:border-fpv-300">
+    <div class="flex items-center gap-4">
+      <span class="text-4xl">📦</span>
+      <div class="flex-1">
+        <div class="font-black text-lg">Trilha do ALMOXARIFADO</div>
+        <div class="text-sm text-stone-500 font-bold">João: saída, entrada com NF, estoque, ferramentas, pedidos</div>
+        <div class="mt-2 h-2 bg-stone-100 rounded-full overflow-hidden"><div data-bar="fpv.treino.almox" data-total="7" class="h-full bg-fpv-500 rounded-full" style="width:0%"></div></div>
+        <div class="text-[11px] font-black text-stone-400 mt-1" data-frac="fpv.treino.almox" data-total="7">0 de 7 lidos</div>
+      </div>
+      <span class="text-2xl text-stone-300">›</span>
+    </div>
+  </a>
+
+  <a href="gestao.html" class="block bg-white rounded-3xl border-2 border-stone-200 p-5 hover:border-fpv-300">
+    <div class="flex items-center gap-4">
+      <span class="text-4xl">📊</span>
+      <div class="flex-1">
+        <div class="font-black text-lg">Trilha da GESTÃO</div>
+        <div class="text-sm text-stone-500 font-bold">Prioridade, medição, livro-razão, cobrança e boletim</div>
+        <div class="mt-2 h-2 bg-stone-100 rounded-full overflow-hidden"><div data-bar="fpv.treino.gestao" data-total="7" class="h-full bg-fpv-500 rounded-full" style="width:0%"></div></div>
+        <div class="text-[11px] font-black text-stone-400 mt-1" data-frac="fpv.treino.gestao" data-total="7">0 de 7 lidos</div>
+      </div>
+      <span class="text-2xl text-stone-300">›</span>
+    </div>
+  </a>
+
+  <a href="/" class="block text-center font-black text-fpv-700 bg-fpv-50 border-2 border-fpv-100 rounded-2xl py-4">
+    🏗️ Abrir o aplicativo FPV Campo
+  </a>
+
+</div>
+<script>
+// progresso vem do localStorage de cada trilha (mapa {topico:true})
+try {
+  document.querySelectorAll('[data-bar],[data-frac]').forEach(function (el) {
+    var key = el.getAttribute('data-bar') || el.getAttribute('data-frac');
+    var total = parseInt(el.getAttribute('data-total'), 10) || 1;
+    var lidos = 0;
+    try { lidos = Object.keys(JSON.parse(localStorage.getItem(key) || '{}')).length; } catch (e) { }
+    if (lidos > total) lidos = total;
+    if (el.hasAttribute('data-bar')) el.style.width = Math.round(100 * lidos / total) + '%';
+    else el.textContent = lidos + ' de ' + total + ' lidos';
+  });
+} catch (e) { }
+</script>
+</body>
+</html>

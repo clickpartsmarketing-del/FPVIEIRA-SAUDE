@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha do Almoxarifado · FPV Campo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{fpv:{50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#059669',700:'#047857',900:'#064e3b'}}}}};</script>
+</head>
+<body class="bg-stone-100 text-stone-900">
+<div class="max-w-md mx-auto p-4 pb-16 space-y-4">
+
+  <header class="pt-3">
+    <a href="index.html" class="text-sm font-black text-stone-500">← Trilhas</a>
+    <h1 class="font-black text-2xl mt-1">📦 Trilha do ALMOXARIFADO</h1>
+    <p class="text-sm text-stone-500 font-bold">Para o João — o dono do estoque.</p>
+    <div class="mt-3 h-3 bg-white border border-stone-200 rounded-full overflow-hidden"><div id="barra" class="h-full bg-fpv-500 rounded-full" style="width:0%"></div></div>
+    <div id="fracao" class="text-[11px] font-black text-stone-400 mt-1">0 de 7 lidos</div>
+  </header>
+
+  <section data-topico="t1" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">1. Seu painel do dia 📊</h2>
+    <p class="font-medium">A aba <b>Material</b> abre na Estatística: saídas de hoje, itens <b>EM FALTA</b> 🚨, os que estão <b>perto de acabar</b> e as emergências abertas. Olhe ela de manhã.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t2" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">2. Saída de material ➡️</h2>
+    <p class="font-medium">Toda saída tem <b>quem retirou</b> (obrigatório) e, sempre que der, a <b>O.S.</b>. A pessoa confirma o RECEBI no app dela.</p>
+    <p class="font-medium bg-fpv-50 border border-fpv-100 rounded-xl px-3 py-2">💡 Equipe pegou material <b>sem O.S. ainda</b>? Use o botão vermelho <b>gerar e vincular</b>: você mesmo cria a O.S. emergencial no balcão, com a escola e o fiscal certos.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t3" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">3. Entrada de compra 🧾</h2>
+    <p class="font-medium">Chegou material comprado? Lance a <b>Entrada</b> com a <b>foto da nota fiscal</b>. O saldo sobe sozinho.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t4" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">4. Estoque e mínimos 📉</h2>
+    <p class="font-medium">Cada item pode ter <b>quantidade mínima</b> — abaixo dela o painel avisa. Você edita descrição/unidade/mínimo pelo <b>lápis ✏️</b>.</p>
+    <p class="font-medium">A <b>contagem física 🧮</b> (acertar o saldo) é só da gestão: Nicolas, Renan e Lucas. Digitou um material novo numa saída? Ele entra no catálogo sozinho com saldo negativo até a contagem.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t5" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">5. Ferramentas 🔨</h2>
+    <p class="font-medium">Ferramenta <b>não é saída</b> — ela volta. Use <b>Entregar</b> (para quem, qual obra, qual O.S.) e <b>Voltou</b>. Toque na ferramenta para abrir a <b>ficha</b> e corrigir o paradeiro.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t6" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">6. Pedidos das equipes 🛒</h2>
+    <p class="font-medium">O pedido chega na aba <b>Pedidos</b> com a conferência automática (✔ tem / ✗ zerado). Separou? Marque <b>SEPARADO</b> — a equipe confirma o RECEBIDO do lado dela.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t7" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">7. Devolução ↩</h2>
+    <p class="font-medium">Sobrou material na obra? Registre a <b>devolução</b> na saída original — o saldo volta para o estoque e fica tudo auditável.</p>
+    <button class="lido"></button>
+  </section>
+
+  <a href="index.html" class="block text-center font-black text-stone-500 bg-white border-2 border-stone-200 rounded-2xl py-4">← Voltar às trilhas</a>
+</div>
+
+<script>
+(function () {
+  var KEY = 'fpv.treino.almox';
+  var mapa = {};
+  try { mapa = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { }
+  var secoes = document.querySelectorAll('[data-topico]');
+  function pinta() {
+    var lidos = 0;
+    secoes.forEach(function (s) {
+      var id = s.getAttribute('data-topico'), b = s.querySelector('button.lido'), ok = !!mapa[id];
+      if (ok) lidos++;
+      b.className = 'lido w-full min-h-[48px] rounded-2xl font-black border-2 ' + (ok ? 'bg-fpv-50 border-fpv-300 text-fpv-700' : 'bg-white border-stone-200 text-stone-400');
+      b.textContent = ok ? '✔ Lido!' : 'Marcar como lido';
+    });
+    document.getElementById('barra').style.width = Math.round(100 * lidos / secoes.length) + '%';
+    document.getElementById('fracao').textContent = lidos + ' de ' + secoes.length + ' lidos';
+  }
+  secoes.forEach(function (s) {
+    s.querySelector('button.lido').addEventListener('click', function () {
+      var id = s.getAttribute('data-topico');
+      if (mapa[id]) delete mapa[id]; else mapa[id] = true;
+      try { localStorage.setItem(KEY, JSON.stringify(mapa)); } catch (e) { }
+      pinta();
+    });
+  });
+  pinta();
+})();
+</script>
+</body>
+</html>

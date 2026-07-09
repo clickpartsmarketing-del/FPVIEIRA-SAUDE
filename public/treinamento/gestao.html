@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha da Gestão · FPV Campo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{fpv:{50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#059669',700:'#047857',900:'#064e3b'}}}}};</script>
+</head>
+<body class="bg-stone-100 text-stone-900">
+<div class="max-w-md mx-auto p-4 pb-16 space-y-4">
+
+  <header class="pt-3">
+    <a href="index.html" class="text-sm font-black text-stone-500">← Trilhas</a>
+    <h1 class="font-black text-2xl mt-1">📊 Trilha da GESTÃO</h1>
+    <p class="text-sm text-stone-500 font-bold">Para Lucas, Rafael, Renan, Nicolas e Edmar.</p>
+    <div class="mt-3 h-3 bg-white border border-stone-200 rounded-full overflow-hidden"><div id="barra" class="h-full bg-fpv-500 rounded-full" style="width:0%"></div></div>
+    <div id="fracao" class="text-[11px] font-black text-stone-400 mt-1">0 de 7 lidos</div>
+  </header>
+
+  <section data-topico="t1" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">1. Cada papel tem sua tela 🖥️</h2>
+    <p class="font-medium">A aba <b>Gestão</b> muda conforme quem loga: <b>Lucas/Rafael</b> veem o boletim de saúde do contrato (semáforo, funil da grana, glosa); <b>Nicolas</b> vê a rota de conferência por escola; <b>Edmar</b> vê a esteira de medição com o placar de prontas.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t2" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">2. Prioridade P1–P3 🔴</h2>
+    <p class="font-medium">No card expandido da O.S., <b>Nicolas, Renan e Lucas</b> marcam P1/P2/P3. O painel da equipe <b>ordena por isso</b> — P1 aparece no topo com selo vermelho. É a forma oficial de dizer "faça isso primeiro".</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t3" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">3. Medição vigente 🔒</h2>
+    <p class="font-medium">A medição do mês é automática (julho/26 = MED 8). <b>Medição fechada é intocável para o campo</b> — só a gestão corrige, com aviso. Saída de material também trava fora do mês vigente.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t4" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">4. Livro-razão 📖</h2>
+    <p class="font-medium">Excluir O.S. <b>não apaga</b>: vira marca "EXCLUÍDA", o número fica ocupado para sempre e o banco registra <b>quem, quando e o que era</b> (os_campo_log). Toda edição também é logada. Auditoria do TCE tranquila.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t5" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">5. Os 5 selos da O.S. pronta ✅</h2>
+    <p class="font-medium">Uma O.S. só vira dinheiro com: <b>Concluída + Memória + Foto + Nº oficial + Assinatura</b>. As telas de gestão mostram o que falta em cada uma — cobre pelo selo que falta, não genericamente.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t6" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">6. Export para a medição 📤</h2>
+    <p class="font-medium">Na Gestão, o botão <b>Baixar CSV</b> gera o arquivo no formato da planilha de medição (Edmar). Exportar <b>PRONTAS</b> separa o que já pode ser cobrado.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t7" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">7. Boletim operacional 📣</h2>
+    <p class="font-medium">Rotina de cobrança: o boletim lista <b>RECEBI pendentes por pessoa</b>, pedidos parados e O.S. sem foto — com texto pronto para o grupo do WhatsApp. Pedir ao Renan/Claude ou rodar <code>boletim_operacional.ps1</code>. Sem cobrança de rotina, o funil para.</p>
+    <button class="lido"></button>
+  </section>
+
+  <a href="index.html" class="block text-center font-black text-stone-500 bg-white border-2 border-stone-200 rounded-2xl py-4">← Voltar às trilhas</a>
+</div>
+
+<script>
+(function () {
+  var KEY = 'fpv.treino.gestao';
+  var mapa = {};
+  try { mapa = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { }
+  var secoes = document.querySelectorAll('[data-topico]');
+  function pinta() {
+    var lidos = 0;
+    secoes.forEach(function (s) {
+      var id = s.getAttribute('data-topico'), b = s.querySelector('button.lido'), ok = !!mapa[id];
+      if (ok) lidos++;
+      b.className = 'lido w-full min-h-[48px] rounded-2xl font-black border-2 ' + (ok ? 'bg-fpv-50 border-fpv-300 text-fpv-700' : 'bg-white border-stone-200 text-stone-400');
+      b.textContent = ok ? '✔ Lido!' : 'Marcar como lido';
+    });
+    document.getElementById('barra').style.width = Math.round(100 * lidos / secoes.length) + '%';
+    document.getElementById('fracao').textContent = lidos + ' de ' + secoes.length + ' lidos';
+  }
+  secoes.forEach(function (s) {
+    s.querySelector('button.lido').addEventListener('click', function () {
+      var id = s.getAttribute('data-topico');
+      if (mapa[id]) delete mapa[id]; else mapa[id] = true;
+      try { localStorage.setItem(KEY, JSON.stringify(mapa)); } catch (e) { }
+      pinta();
+    });
+  });
+  pinta();
+})();
+</script>
+</body>
+</html>

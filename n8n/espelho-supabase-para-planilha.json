@@ -1,0 +1,107 @@
+{
+  "name": "ESPELHO: Supabase (app) -> Planilha Automacao",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "id": "espelho-trigger-0001",
+      "name": "A cada 15 min"
+    },
+    {
+      "parameters": {
+        "url": "https://lgdnuyreaknxjswrfbjw.supabase.co/rest/v1/os_campo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "select", "value": "*" },
+            { "name": "criado_por", "value": "not.is.null" },
+            { "name": "order", "value": "criado_em.desc" },
+            { "name": "limit", "value": "1000" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_AQUI_A_SERVICE_ROLE_KEY" },
+            { "name": "Authorization", "value": "Bearer COLE_AQUI_A_SERVICE_ROLE_KEY" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "id": "espelho-http-0002",
+      "name": "Busca O.S. do app (Supabase)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Uma linha por O.S. criada NO APP (as importadas ja nasceram da planilha).\n// Fotos viram links clicaveis, um por linha na mesma celula (p/ o RDO).\nconst out = [];\nfor (const item of $input.all()) {\n  const o = item.json;\n  const ref = o.numero != null ? String(o.numero) : (o.fict_ref || (o.numero_fict ? 'F-' + o.numero_fict : 'ID-' + o.id));\n  out.push({ json: {\n    'REF': ref,\n    'OS': o.numero != null ? o.numero : '',\n    'Unidade': o.unidade || '',\n    'Fiscal': o.fiscal || '',\n    'Classificacao': o.classificacao || '',\n    'Tipo': o.tipo || (o.emergencial ? 'Emergencial' : ''),\n    'Emergencial': o.emergencial ? 'SIM' : '',\n    'Entrada': o.entrada || '',\n    'Conclusao': o.conclusao || '',\n    'Executor': o.executor || '',\n    'Status': o.status || '',\n    'Medicao': o.medicao || '',\n    'Area': o.area || '',\n    'Fiscal pediu': o.solicitado || '',\n    'Servico executado': o.servico || '',\n    'Materiais': o.materiais || '',\n    'Memoria de calculo': o.memoria_calculo || '',\n    'Fotos (RDO)': Array.isArray(o.foto_urls) ? o.foto_urls.join('\\n') : '',\n    'Assinado': o.assinado ? 'SIM' : '',\n    'Criado em': o.criado_em || ''\n  }});\n}\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0],
+      "id": "espelho-code-0003",
+      "name": "Monta linha do medidor"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1SOhfGG5cudR2rx6P4OpA662K16c33r31rt7YjG-sAGA",
+          "mode": "list",
+          "cachedResultName": "Controle de O.S. - Educação RDO Automação",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SOhfGG5cudR2rx6P4OpA662K16c33r31rt7YjG-sAGA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "APP CAMPO",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": ["REF"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [660, 0],
+      "id": "espelho-sheet-0004",
+      "name": "Grava na aba APP CAMPO",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EEdRPyzKiqpaqF2H",
+          "name": "Google Sheets FPV"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "A cada 15 min": {
+      "main": [[{ "node": "Busca O.S. do app (Supabase)", "type": "main", "index": 0 }]]
+    },
+    "Busca O.S. do app (Supabase)": {
+      "main": [[{ "node": "Monta linha do medidor", "type": "main", "index": 0 }]]
+    },
+    "Monta linha do medidor": {
+      "main": [[{ "node": "Grava na aba APP CAMPO", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": { "executionOrder": "v1" }
+}

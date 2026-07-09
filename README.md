@@ -1,64 +1,74 @@
-# FPVIEIRA-SAUDE
+# FPV Campo Saúde (FP.096)
 
-Ferramentas de campo e acompanhamento do contrato **FP Vieira · Saúde 094 — Rio das Ostras (contrato 005/2026)**.
+App de campo e ferramentas de medição do contrato **F.P. Vieira · Saúde —
+Rio das Ostras (contrato 005/2026)**. Réplica parametrizada do app da
+Educação (fpvieira.vercel.app), seguindo `EXPANSAO-5-CONTRATOS.md`.
 
-Esteira do dado: **grupo do WhatsApp → reporte padronizado → painel do engenheiro → dedução EMOP → medição**.
+Esteira do dado: **campo registra O.S. no app → foto + memória de cálculo
+→ engenheiro confere → esteira de medição (5 selos) → export p/ planilha
+oficial EMOP**. Enquanto o app não assume, as ferramentas da fase 1
+continuam no ar (WhatsApp → painel → dedução).
 
 ## Páginas
 
 | Página | Quem usa | Status |
 |---|---|---|
-| `index.html` | hub — entrada por papel | ✅ ativo |
-| `painel.html#painel` | **Engenheiro (Leony)**: cola o export do grupo → fechamento por unidade, pedidos pendentes, relatos incompletos, estimativa EMOP | ✅ ativo |
-| `painel.html#reporte` | **Campo (eletricistas/equipes)**: registro de serviço em 1 min → mensagem padronizada p/ o grupo | ✅ ativo |
-| `painel.html#regras` | todos — as 5 regras do reporte | ✅ ativo |
-| `medicao.html` | **Medição (Edmar)**: 22 itens EMOP auditados p/ lançar, memória de cálculo filtrável, cenários do mês e as 16 perguntas que liberam medição | ✅ ativo |
-| Gestão (diretoria) | ritmo do contrato, cenários | 🔜 spec com Leony |
-| Almoxarifado | pedidos/estoque (padrão do contrato Educação) | 🔜 |
+| `/` (app React) | todos — login em 2 toques, tela por papel | 🔶 aguardando Supabase |
+| — Painel pessoal | Neilson/Queiroz/Emiliano: designadas, prioridade, material | 🔶 |
+| — Almoxarifado | Thiago Rafael (usuário-âncora) | 🔶 |
+| — Gestão | Leony (rota/conferência) · Edmar (5 selos/MED) · Renan/Lucas/Rafael (boletim) | 🔶 |
+| `/painel.html` | Leony: cola o export do grupo WhatsApp → fechamentos, pendências, estimativa EMOP | ✅ ativo (fase 1) |
+| `/medicao.html` | Edmar: pacote de junho — 22 itens auditados, memória, cenários, 16 perguntas | ✅ ativo (fase 1) |
 
 ## Stack
 
-**Vite** (multi-página) + HTML/CSS/JS. As páginas são autossuficientes (dados embutidos, funcionam offline); o Vite entra como esteira de build/deploy e prepara a fase de produção com **Supabase** como banco de dados.
+React 19 + Vite + Tailwind CDN + Supabase (auth, postgres, storage,
+realtime) + Vercel. As páginas da fase 1 são HTML puro (dados embutidos,
+funcionam offline) e entram como páginas extras do build Vite.
 
 ```bash
 npm install     # uma vez
 npm run dev     # desenvolvimento (http://localhost:5173)
-npm run build   # gera dist/ para produção
+npm run build   # gera dist/
 ```
 
-### Deploy (Vercel)
+## Subir produção (na ordem)
 
-1. Vercel → **Add New → Project** → importar este repositório
-2. Framework preset: **Vite** (detectado automaticamente) — build `vite build`, saída `dist/`
-3. Deploy. As três páginas ficam em `/`, `/painel.html` e `/medicao.html`
+1. **Supabase** — criar projeto (grátis) e rodar no SQL Editor, na ordem:
+   `supabase.sql` → `supabase_vps.sql` (+ `alter table os_campo add column
+   if not exists solicitado text;`) → `almoxarifado.sql` → `ALMOX-V2.sql`
+   → `PENDENTES-CONSOLIDADO.sql` → `REALTIME-E-TIPO.sql` →
+   `AUDITORIA-EDICOES.sql`. Bucket `fotos-os` público (policies no
+   supabase.sql). Conferência: `CONFERENCIA-GERAL.sql` (só leitura).
+2. **Usuários** — Auth → Add user (Auto Confirm) para cada e-mail de
+   `ACESSOS` (config.ts).
+3. **Vercel** — importar o repo (preset **Vite** automático) + 2 env vars:
+   `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (só a chave **anon**;
+   env var nova exige Redeploy — lição #14). Sem as env vars o app abre
+   com aviso de configuração e as páginas da fase 1 funcionam normalmente.
+4. **Onboarding** (ordem que funcionou na Educação): 1º almoxarife →
+   eletricistas → encarregado → engenheiro → medição → gestores.
 
-### Supabase (produção)
+## O que é parametrizado por contrato
 
-- Esquema inicial proposto em [`supabase/schema.sql`](supabase/schema.sql) (relatos → itens de medição → perguntas), com RLS habilitado
-- Cliente pronto em [`src/lib/supabase.js`](src/lib/supabase.js) — só liga quando as variáveis existirem:
-  - local: copiar `.env.example` → `.env`
-  - Vercel: Settings → Environment Variables → `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (usar somente a chave **anon**; nunca a service_role no front)
-- Sem as variáveis, tudo continua funcionando standalone — nada quebra
-
-## Como funciona o painel do engenheiro
-
-1. WhatsApp → grupo → ⋮ → **Exportar conversa (sem mídia)**
-2. Abrir `painel.html` → colar o conteúdo do `_chat.txt` → **Processar relatos**
-3. O parser separa **EXECUTADO × PEDIDO × CONFERIR**, agrupa por unidade, conta fotos e estima R$ pelas regras EMOP do contrato (pontos compostos, fornecimento e colocação, miudezas absorvidas)
-4. Botões geram as mensagens de cobrança e o **fechamento por unidade** prontos para colar no grupo
-
-> ⚠️ A estimativa é para acompanhamento. A medição oficial passa pelo engenheiro e pela planilha de medição.
+| O quê | Onde |
+|---|---|
+| Papéis, equipes, login 2 toques, âncora da MED | `config.ts` |
+| Fiscais/executores/medições válidos | `types.ts` |
+| Unidades de saúde | `data/escolas.ts` |
+| Catálogo de materiais | `data/materiais.ts` |
+| Nº do contrato nos cabeçalhos | `App.tsx`, `LoginScreen.tsx`, `FechamentoSemanal.tsx`, `Financeiro.tsx` |
 
 ## Privacidade
 
-**Não subir neste repositório**: planilhas de medição, exports do WhatsApp (`_chat.txt`), fotos de obra ou qualquer dado de contrato. O `.gitignore` bloqueia os formatos comuns. Recomendado manter o repositório **privado**.
+**Não subir neste repositório**: planilhas de medição, exports do
+WhatsApp (`_chat.txt`), fotos de obra ou qualquer dado de contrato — o
+`.gitignore` bloqueia os formatos comuns. Recomendado manter o
+repositório **privado**.
 
-## Roadmap
+## Método
 
-- [x] Painel de Medição (Edmar) — `medicao.html` (v1.1, 09/07)
-- [x] Esteira Vite + scaffolding Supabase
-- [ ] Definir com o Leony os painéis de Gestão e Almoxarifado
-- [ ] Publicar na Vercel e distribuir o link `#reporte` para as equipes
-- [ ] Criar o projeto Supabase e rodar `supabase/schema.sql` (aí as páginas passam a ler/escrever no banco)
-- [ ] Dicionário de materiais → EMOP ampliado (hoje ~30 regras embutidas)
-- [ ] Futuro: mesma esteira automatizada via n8n + Evolution (padrão do contrato Educação)
+`CLAUDE.md` = identidade e regras duras · `ERROS-E-LICOES.md` = 22 lições
+de produção herdadas da Educação (não regrida) · `DEPLOY.md` e
+`COMANDOS.md` = referência operacional · `EXPANSAO-5-CONTRATOS.md` = a
+receita desta replicação.

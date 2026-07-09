@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilha da Equipe · FPV Campo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{fpv:{50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#059669',700:'#047857',900:'#064e3b'}}}}};</script>
+</head>
+<body class="bg-stone-100 text-stone-900">
+<div class="max-w-md mx-auto p-4 pb-16 space-y-4">
+
+  <header class="pt-3">
+    <a href="index.html" class="text-sm font-black text-stone-500">← Trilhas</a>
+    <h1 class="font-black text-2xl mt-1">🚨 Trilha da EQUIPE</h1>
+    <p class="text-sm text-stone-500 font-bold">Para as equipes de emergência (Leandro/Renato) e corretiva (Gilson/Carlos Alberto).</p>
+    <div class="mt-3 h-3 bg-white border border-stone-200 rounded-full overflow-hidden"><div id="barra" class="h-full bg-fpv-500 rounded-full" style="width:0%"></div></div>
+    <div id="fracao" class="text-[11px] font-black text-stone-400 mt-1">0 de 7 lidos</div>
+  </header>
+
+  <section data-topico="t1" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">1. Entrar no app 🔑</h2>
+    <p class="font-medium">Abra <b>fpvieira.vercel.app</b>, <b>toque no nome da sua equipe</b> e digite só a senha. Toque no <b>olhinho 👁</b> para conferir o que digitou.</p>
+    <p class="font-medium">Depois de entrar, <b>você fica conectado</b> — não precisa logar toda vez. Não toque em "Sair" sem motivo.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t2" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">2. Seu painel 🏠</h2>
+    <p class="font-medium">O painel mostra <b>só as O.S. da sua zona</b>. O que tem <b>P1 vermelho</b> foi marcado pela gestão: <b>faça primeiro</b>.</p>
+    <p class="font-medium">Emergência tem prazo de <b>48 horas</b>. O relógio ⏰ avisa quando está estourando.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t3" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">3. Registrar a O.S. ➕</h2>
+    <p class="font-medium">Aba <b>Nova O.S.</b>: escolha a escola, escreva <b>o que pediram</b>, marque se é emergência. O número (<b>L01, M01…</b>) o sistema cria sozinho — <b>nunca invente número de papel</b>.</p>
+    <p class="font-medium">Usou material do <b>kit da emergência</b>? Marque no formulário: a baixa no estoque é automática.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t4" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">4. Foto + medidas = dinheiro 📷</h2>
+    <p class="font-medium">Foto de <b>ANTES</b> e de <b>DEPOIS</b>, sempre. E a <b>memória de cálculo com números</b> (metros, quantidade).</p>
+    <p class="font-medium bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">⚠️ Sem foto e sem medidas a O.S. <b>não conclui</b> e o serviço <b>não vira cobrança</b>. É trabalho feito de graça.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t5" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">5. Pedir material 🧱</h2>
+    <p class="font-medium">No painel, seção <b>Material</b>: escreva <b>um item por linha, com quantidade</b> (ex.: "2 SC cimento") e toque em quem está pedindo. O João recebe na hora.</p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t6" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">6. Confirmar RECEBI ✅</h2>
+    <p class="font-medium">Quando o João separa seu pedido ou registra material no seu nome, aparece o botão <b>RECEBI ✔</b> no seu painel. Aperte <b>quando o material estiver na sua mão</b>.</p>
+    <p class="font-medium bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">⚠️ Sem o RECEBI, o estoque não fecha e a cobrança trava. <b>É 1 toque — faça na hora.</b></p>
+    <button class="lido"></button>
+  </section>
+
+  <section data-topico="t7" class="bg-white rounded-3xl border-2 border-stone-200 p-5 space-y-2">
+    <h2 class="font-black text-lg">7. Chegou número oficial? 🔢</h2>
+    <p class="font-medium">Se a O.S. que você abriu ganhar número oficial (do e-mail do fiscal), <b>avise a gestão</b> — ela vincula pelo botão <b>#</b> e o histórico continua o mesmo. Concluir só quando estiver <b>tudo completo</b>: executor, foto e memória.</p>
+    <button class="lido"></button>
+  </section>
+
+  <a href="index.html" class="block text-center font-black text-stone-500 bg-white border-2 border-stone-200 rounded-2xl py-4">← Voltar às trilhas</a>
+</div>
+
+<script>
+(function () {
+  var KEY = 'fpv.treino.equipe';
+  var mapa = {};
+  try { mapa = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { }
+  var secoes = document.querySelectorAll('[data-topico]');
+  function pinta() {
+    var lidos = 0;
+    secoes.forEach(function (s) {
+      var id = s.getAttribute('data-topico'), b = s.querySelector('button.lido'), ok = !!mapa[id];
+      if (ok) lidos++;
+      b.className = 'lido w-full min-h-[48px] rounded-2xl font-black border-2 ' + (ok ? 'bg-fpv-50 border-fpv-300 text-fpv-700' : 'bg-white border-stone-200 text-stone-400');
+      b.textContent = ok ? '✔ Lido!' : 'Marcar como lido';
+    });
+    document.getElementById('barra').style.width = Math.round(100 * lidos / secoes.length) + '%';
+    document.getElementById('fracao').textContent = lidos + ' de ' + secoes.length + ' lidos';
+  }
+  secoes.forEach(function (s) {
+    s.querySelector('button.lido').addEventListener('click', function () {
+      var id = s.getAttribute('data-topico');
+      if (mapa[id]) delete mapa[id]; else mapa[id] = true;
+      try { localStorage.setItem(KEY, JSON.stringify(mapa)); } catch (e) { }
+      pinta();
+    });
+  });
+  pinta();
+})();
+</script>
+</body>
+</html>
