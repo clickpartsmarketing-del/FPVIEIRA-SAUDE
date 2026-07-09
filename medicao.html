@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPV Saúde 094 — Painel da Medição (Edmar)</title>
+<style>
+:root{--bg:#f6f5f0;--card:#fff;--ink:#1a1a18;--mut:#6b6a64;--line:#e4e2da;--green:#0f6e56;--greenbg:#e1f5ee;--amber:#854f0b;--amberbg:#faeeda;--red:#a32d2d;--redbg:#fcebeb;--blue:#185fa5;--bluebg:#e6f1fb;--gold:#7a6206;--goldbg:#fdf6d8;--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+header{background:#1a1a18;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header h1{font-size:16px;font-weight:600}
+header .tag{font-size:11px;background:#3a3a36;padding:3px 10px;border-radius:99px;color:#d8d6cc}
+nav{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav button{flex:1;padding:12px 6px;border:0;background:none;font-size:13.5px;font-weight:600;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:var(--ink);border-bottom-color:#1a1a18}
+main{max-width:960px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;text-align:center}
+.kpi b{display:block;font-size:19px}
+.kpi span{font-size:11.5px;color:var(--mut)}
+h2{font-size:15px;margin-bottom:8px}
+h3{font-size:13.5px;margin:12px 0 6px}
+.btn{display:inline-block;border:0;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;background:#1a1a18;color:#fff}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.mini{padding:5px 10px;font-size:12px}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.p-ok{background:var(--greenbg);color:var(--green)}
+.p-ped{background:var(--amberbg);color:var(--amber)}
+.p-conf{background:var(--redbg);color:var(--red)}
+.p-info{background:var(--bluebg);color:var(--blue)}
+.p-gold{background:var(--goldbg);color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip.on{background:#1a1a18;color:#fff;border-color:#1a1a18}
+input[type=text],select{border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:13.5px;background:#fff}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:640px}
+th{background:#f0efe8;text-align:left;padding:7px 8px;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--mut);white-space:nowrap}
+td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sec-RETIDO td{background:#fdf3e6}
+tr.sec-PLEITO td{background:#fdfaec}
+tr.sec-SATELITE td{background:#eef5fc}
+.money{font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--mut);margin-top:6px}
+.warn{background:var(--amberbg);border:1px solid #ecd9b0;border-radius:8px;padding:10px 12px;font-size:13px;margin:8px 0}
+.ok{background:var(--greenbg);border:1px solid #bfe3d4;border-radius:8px;padding:10px 12px;font-size:13px;margin:8px 0}
+.cen{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0}
+.cenario{border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;background:#fff}
+.cenario b{font-size:20px;display:block;margin:4px 0}
+.cenario.c2{border-color:#b9d7f0;background:var(--bluebg)}
+.cenario.c3{border-color:#bfe3d4;background:var(--greenbg)}
+.perg{border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:11px 14px;margin-bottom:8px}
+.perg .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.perg .txt{font-size:13.5px;margin:6px 0}
+.copy-ok{color:var(--green);font-size:12px;font-weight:600}
+ol.check{margin:8px 0 0 20px;font-size:13.5px}
+ol.check li{margin-bottom:7px}
+.tot{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:8px}
+.tot b{font-variant-numeric:tabular-nums}
+footer{max-width:960px;margin:0 auto;padding:8px 16px 24px;font-size:11.5px;color:var(--mut)}
+@media(max-width:640px){nav button{font-size:12px;padding:10px 2px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>FP VIEIRA · SAÚDE 094 — Rio das Ostras</h1>
+  <span class="tag">Painel da Medição · Edmar</span>
+  <span class="tag">período 02/06 → 07/07/2026</span>
+</header>
+<nav>
+  <button class="on" onclick="tab(0,this)">📋 Resumo p/ lançar</button>
+  <button onclick="tab(1,this)">🧮 Memória de cálculo</button>
+  <button onclick="tab(2,this)">📊 Medição montada</button>
+  <button onclick="tab(3,this)">❓ Perguntas</button>
+</nav>
+<main>
+
+<!-- ============ TAB 0 : RESUMO ============ -->
+<section id="t0">
+  <div class="kpis">
+    <div class="kpi"><b class="money" id="kMedir">—</b><span>MEDIR AGORA (auditado)</span></div>
+    <div class="kpi"><b class="money" id="kRetido">—</b><span>retido Sal Sal (não lançar)</span></div>
+    <div class="kpi"><b id="kItens">—</b><span>itens EMOP</span></div>
+    <div class="kpi"><b class="money">≈ R$ 63 mil/mês</b><span>bloco MO + ADM (mín. 1/3)</span></div>
+  </div>
+  <div class="ok">✅ Os 22 itens abaixo foram validados <b>contra o contrato</b> (código EMOP, preço COM BDI e saldo) em 08/07 — verificador programático 22/22. Todos cabem no saldo.</div>
+  <div class="card">
+    <h2>Resumo por item EMOP — alimenta a coluna REALIZADO NO PERÍODO
+      <button class="btn mini sec" style="float:right" onclick="copiarResumo(this)">📋 Copiar p/ Excel</button>
+    </h2>
+    <div class="note">O botão copia a tabela com números no formato pt-BR (vírgula) — é só colar na planilha de junho.</div>
+    <div class="tblwrap" style="margin-top:8px">
+      <table id="tbResumo">
+        <thead><tr><th>Item</th><th>Cód. EMOP</th><th>Serviço</th><th>Un</th><th class="num">Qtde</th><th class="num">Preço BDI</th><th class="num">Valor R$</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="warn">⚠ <b>NÃO lançar:</b> o retido do Sal Sal (<span id="wRetido" class="money"></span> — 20 pontos de tomada + 8 de luz). A lista de 24/06 era <b>PEDIDO de material</b>, execução não confirmada. Pergunta 1 do grupo libera.</div>
+  <div class="card">
+    <h2>Checklist do lançamento</h2>
+    <ol class="check">
+      <li>Copiar a tabela acima para a coluna <b>REALIZADO NO PERÍODO</b> da medição de junho (preços já COM BDI).</li>
+      <li>Lançar o bloco <b>ADM local + MO emergencial</b> — mínimo 1/3 como abril; a defesa do mês cheio está na aba "Medição montada".</li>
+      <li><b>Não lançar</b> o retido Sal Sal até a resposta da pergunta 1.</li>
+      <li>Vincular a <b>OS oficial EE19FB2C</b> (Nova Esperança, troca de tomada 26/06) — rastreabilidade p/ fiscal (pergunta 12).</li>
+      <li>Memória de cálculo por data/unidade está na aba 🧮 (e na aba SERVICOS do consolidado v2.1 em Excel).</li>
+      <li>Itens marcados <span class="pill p-conf">CONFIRMAR NO GRUPO</span> (~R$ 6 mil) estão DENTRO do medir — se o fiscal questionar, a pergunta 2 do grupo cobre.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ TAB 1 : MEMORIA ============ -->
+<section id="t1" style="display:none">
+  <div class="card">
+    <h2>Memória de cálculo — 75 linhas por data/unidade</h2>
+    <div class="filtros">
+      <div class="chips" id="fSec">
+        <span class="chip on" data-v="">Todas</span>
+        <span class="chip" data-v="MEDIR">✅ Medir</span>
+        <span class="chip" data-v="RETIDO">⏸ Retido</span>
+        <span class="chip" data-v="PLEITO">📜 Pleito</span>
+        <span class="chip" data-v="SATELITE">🛰 Satélite</span>
+      </div>
+      <select id="fUnid"><option value="">Todas as unidades</option></select>
+      <input type="text" id="fBusca" placeholder="buscar serviço, item, obs..." style="flex:1;min-width:160px">
+      <label style="font-size:12.5px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="fConf"> só "confirmar no grupo"</label>
+    </div>
+    <div class="tot" id="totais"></div>
+    <div class="tblwrap" style="margin-top:8px">
+      <table id="tbServ">
+        <thead><tr><th>Seção</th><th>Data</th><th>Unidade</th><th>Serviço</th><th>Item</th><th>Un</th><th class="num">Qtde</th><th class="num">Preço</th><th class="num">Valor R$</th><th>Fonte / obs</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note">Cores: branco = MEDIR · laranja = RETIDO (Sal Sal) · amarelo = PLEITO (sem item ou sem quantidade no contrato) · azul = SATÉLITE (arrancamento/retirada/transporte — validar com Leony). Fonte: A = quantidade explícita · B = deduzida · GRUPO ✓ = com rastro no export do WhatsApp.</p>
+  </div>
+</section>
+
+<!-- ============ TAB 2 : MONTADA ============ -->
+<section id="t2" style="display:none">
+  <div class="warn">💰 <b>O argumento:</b> na MED 01 (março, R$ 919k de serviço) o fiscal pagou ADM+MO <b>mês cheio = R$ 189.488</b>. Na MED 02 (abril, R$ 8,9k de serviço) pagou exatamente <b>1/3 = R$ 63.163</b>. Serviço medido puxa a administração — e junho tem diário + 270 fotos de evidência.</div>
+  <div class="cen">
+    <div class="cenario"><span class="pill p-ped">CENÁRIO 1 · CONSERVADOR</span><b class="money">R$ 86.372,07</b><span class="note">ADM+MO a 1/3 (como abril) + os 22 itens firmes</span></div>
+    <div class="cenario c2"><span class="pill p-info">CENÁRIO 2 · PROVÁVEL</span><b class="money">R$ 98.260,99</b><span class="note">1/3 + Sal Sal confirmado + satélites validados</span></div>
+    <div class="cenario c3"><span class="pill p-ok">CENÁRIO 3 · PLENO</span><b class="money">R$ 224.586,74</b><span class="note">ADM+MO mês cheio (como março) + tudo confirmado — defender c/ diário + fotos</span></div>
+  </div>
+  <div class="card">
+    <h2>A — Administração local (mês cheio)</h2>
+    <div class="tblwrap"><table id="tbA"><thead><tr><th>Item</th><th>Descrição</th><th>Un</th><th class="num">Qtde mês</th><th class="num">Preço BDI</th><th class="num">Valor R$</th></tr></thead><tbody></tbody></table></div>
+  </div>
+  <div class="card">
+    <h2>1 — Atendimento emergencial e periódico (mês cheio)</h2>
+    <div class="tblwrap"><table id="tbMO"><thead><tr><th>Item</th><th>Descrição</th><th>Un</th><th class="num">Qtde mês</th><th class="num">Preço BDI</th><th class="num">Valor R$</th></tr></thead><tbody></tbody></table></div>
+  </div>
+  <div class="card">
+    <h2>4 — Transportes + serviços de campo</h2>
+    <div class="tblwrap"><table id="tbOut"><thead><tr><th>Item</th><th>Descrição</th><th>Un</th><th class="num">Qtde</th><th class="num">Preço</th><th class="num">Valor R$</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">Fora dos cenários: pleito plafonier (~R$ 4.800) + DPS + telhado do PS (até R$ 8.375, item 16.16) + Nelson Martins (~R$ 5.000 se executado) + <b>dedução CIVIL descoberta em 09/07</b> (pintura ≈ 3.231 m² = R$ 100–190 mil + drenagem + estrutura — ver pergunta 16).</p>
+  </div>
+</section>
+
+<!-- ============ TAB 3 : PERGUNTAS ============ -->
+<section id="t3" style="display:none">
+  <div class="card">
+    <h2>16 mensagens prontas — cada resposta libera ou confirma medição</h2>
+    <div class="note">Toque em <b>Copiar</b> e cole no grupo Elétrica FP. A soma do que está pendurado nas respostas passa de <b>R$ 150 mil</b>.</div>
+  </div>
+  <div class="warn">🔎 <b>Achados de 09/07 (planilha "MEDIÇÃO ELETRICA- SAÚDE 10-06" do Leony):</b> as perguntas 13–16 nasceram do cruzamento com a planilha deste PC. Destaque: existe <b>diário CIVIL</b> — pintura ≈ 3.231 m² (R$ 100–190 mil), drenagem do Hospital, obra da Extensão do Bosque — nada disso está na medição de junho ainda. E a resposta da pergunta 4 pode já estar lá: <b>25 m² de manta + 10 m² de telhado no PS</b>.</div>
+  <div id="pergs"></div>
+</section>
+
+</main>
+<footer>v1.1 · 09/07/2026 — base: MEDICAO_SAUDE_CONSOLIDADO_02-06_a_07-07_v2.1.xlsx (saldos auditados em 08/07) + achados da planilha do Leony (perguntas 13–16). Dados congelados — novas confirmações do grupo entram na próxima versão via copiloto. FP Vieira · contrato 005/2026.</footer>
+
+<script>
+// ================= DADOS (consolidado v2.1, 08/07/2026) =================
+var RESUMO = [
+["15.66","15.015.0021-A","Ponto de luz aparente","un",10,292.89,2928.90],
+["15.46","15.007.0570-A","Disjuntor monopolar 20A","un",23,12.72,292.56],
+["15.55","15.008.0085-A","Cabo 2,5mm²","m",388,3.93,1524.84],
+["15.33","15.007.0410-A","Quadro distribuição até 12 disj sobrepor","un",3,168.43,505.29],
+["15.48","15.007.0575-A","Disjuntor bipolar 20A","un",8,28.68,229.44],
+["15.72","15.015.0255-A","Ponto de tomada 20A","un",14,361.51,5061.14],
+["15.80","15.020.0173-A","Lâmpada LED tubular 18W","un",48,11.33,543.84],
+["15.78","15.020.0158-A","Lâmpada LED bulbo","un",32,14.97,479.04],
+["15.71","15.015.0251-A","Ponto de tomada aparente","un",22,278.66,6130.52],
+["18.42","18.027.0301-A","Luminária sobrepor calha 1x18W","un",6,95.63,573.78],
+["18.46","18.027.0445-A","Arandela","un",5,66.73,333.65],
+["14.20","14.007.0041-A","Ferragens porta interna c/ fechadura","un",2,75.08,150.16],
+["15.47","15.007.0572-A","Disjuntor monopolar 40-63A","un",1,13.26,13.26],
+["15.79","15.020.0170-A","Lâmpada LED tubular 9W","un",1,10.00,10.00],
+["18.41","18.027.0097-A","Refletor LED","un",3,47.79,143.37],
+["15.35","15.007.0420-A","Quadro distribuição até 24 disj","un",1,471.35,471.35],
+["15.58","15.008.0100-A","Cabo 10mm²","m",100,10.16,1016.00],
+["18.16","18.007.0080-A","Chuveiro elétrico — fornecimento","un",11,92.25,1014.75],
+["18.19","18.009.0058-A","Torneira p/ pia ou tanque em metal","un",2,49.97,99.94],
+["15.51","15.007.0608-A","Disjuntor tripolar 125-160A","un",1,273.49,273.49],
+["15.11","15.004.0046-A","Instalação de chuveiro elétrico c/ tubulação","un",2,478.27,956.54],
+["15.56","15.008.0090-A","Cabo 4mm²","m",36,5.42,195.12]
+];
+// [secao, data, unidade, servico, item, un, qtde, preco, valor|null, obs]
+var SERV = [
+["MEDIR","02/06","CAMINHÃO CATARATA/TENDA","Ponto de luz aparente (instalação provisória de evento)","15.66","un",4,292.89,1171.56,"B · Brendah · destacar na memória: evento"],
+["MEDIR","02/06","CAMINHÃO CATARATA/TENDA","Disjuntor monopolar 20A","15.46","un",1,12.72,12.72,"A · Brendah"],
+["MEDIR","02/06","CAMINHÃO CATARATA/TENDA","Cabo 2,5mm² (excedente do rolo)","15.55","m",52,3.93,204.36,"B · rolo=100m a evidenciar"],
+["MEDIR","04/06","FARMÁCIA MUNICIPAL","Quadro distribuição até 12 disj sobrepor","15.33","un",2,168.43,336.86,"B · Brendah"],
+["MEDIR","04/06","FARMÁCIA MUNICIPAL","Disjuntor bipolar 20A","15.48","un",1,28.68,28.68,"A · Brendah"],
+["MEDIR","04/06","FARMÁCIA MUNICIPAL","Disjuntor monopolar 20A","15.46","un",2,12.72,25.44,"A · Brendah"],
+["MEDIR","04/06","FARMÁCIA MUNICIPAL","Cabo 2,5mm²","15.55","m",20,3.93,78.60,"A · Brendah"],
+["MEDIR","05/06","POSTO CANTAGALO","Ponto de tomada 20A","15.72","un",3,361.51,1084.53,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","05/06","POSTO CANTAGALO","Lâmpada LED tubular 18W (equiv 20W)","15.80","un",4,11.33,45.32,"B · Brendah"],
+["MEDIR","05/06","PRONTO SOCORRO","Lâmpada LED bulbo (redonda)","15.78","un",12,14.97,179.64,"B · Brendah"],
+["MEDIR","05/06","SEMUSA","Ponto de tomada aparente","15.71","un",8,278.66,2229.28,"B · Brendah"],
+["MEDIR","06-07/06","DESGE","Ponto de tomada aparente","15.71","un",4,278.66,1114.64,"B · Brendah"],
+["MEDIR","07/06","DESGE","Lâmpada LED bulbo 9W","15.78","un",1,14.97,14.97,"B · Brendah"],
+["MEDIR","11/06","PRÉ-OPERATÓRIO","Ponto de luz aparente","15.66","un",4,292.89,1171.56,"B · Brendah"],
+["MEDIR","12/06","HOSPITAL (farmácia)","Ponto de tomada aparente","15.71","un",1,278.66,278.66,"B · GRUPO ✓ (Queiroz)"],
+["MEDIR","12/06","HOSPITAL (farmácia)","Ponto de luz aparente (interruptor c/ infra)","15.66","un",1,292.89,292.89,"B · GRUPO ✓"],
+["MEDIR","12/06","POSTO ÂNCORA (salas 02/03/ACS)","Ponto de tomada aparente","15.71","un",4,278.66,1114.64,"B · GRUPO ✓ · unidade deduzida da msg 15/06"],
+["MEDIR","12/06","POSTO ÂNCORA (sala 02)","Luminária sobrepor calha 1x18W","18.42","un",6,95.63,573.78,"B · GRUPO ✓"],
+["MEDIR","12/06","POSTO ÂNCORA (sala 02)","Lâmpada LED bulbo 9W","15.78","un",6,14.97,89.82,"B · GRUPO ✓"],
+["MEDIR","08-12/06","POSTO ÂNCORA","Lâmpada LED tubular 18W (30 tubulares)","15.80","un",30,11.33,339.90,"B · Brendah/foto · duplicata removida · CONFIRMAR NO GRUPO"],
+["MEDIR","13/06","SEMUSA","Ponto de tomada 20A (sobrepor)","15.72","un",1,361.51,361.51,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","14/06","SAL SAL","Ponto de tomada 20A","15.72","un",2,361.51,723.02,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","14/06","SAL SAL","Ponto de tomada aparente 10A","15.71","un",1,278.66,278.66,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","15/06","POSTO ÂNCORA","Arandela (luminária tartaruga)","18.46","un",5,66.73,333.65,"B · GRUPO ✓ são 5"],
+["MEDIR","15/06","POSTO ÂNCORA","Lâmpada LED bulbo 9W","15.78","un",5,14.97,74.85,"B · GRUPO ✓"],
+["MEDIR","15/06","POSTO ÂNCORA (vest. feminino)","Lâmpada LED tubular 18W","15.80","un",2,11.33,22.66,"A · GRUPO ✓"],
+["MEDIR","15/06","POSTO ÂNCORA (ADM + recepção)","Ponto de tomada aparente","15.71","un",4,278.66,1114.64,"B · GRUPO ✓"],
+["MEDIR","15/06","SAÚDE MENTAL","Lâmpada LED tubular 18W (equiv 20W)","15.80","un",6,11.33,67.98,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","16-17/06","CENTRO DE REABILITAÇÃO","Ferragens porta interna c/ fechadura (fornecimento)","14.20","un",2,75.08,150.16,"B · item 14.29 ESGOTADO · 1 conf GRUPO 16/06 · colocação = MO"],
+["MEDIR","18/06","POSTO EDMÉIA","Cabo 2,5mm²","15.55","m",9,3.93,35.37,"A · GRUPO ✓"],
+["MEDIR","18/06","ROCHA LEÃO","Quadro p/ disjuntores (caixa 3 disj)","15.33","un",1,168.43,168.43,"B · GRUPO ✓"],
+["MEDIR","18/06","ROCHA LEÃO","Disjuntor monopolar 20A","15.46","un",2,12.72,25.44,"A · GRUPO ✓"],
+["MEDIR","18/06","ROCHA LEÃO","Ponto de tomada 20A","15.72","un",1,361.51,361.51,"B · GRUPO ✓"],
+["MEDIR","18/06","SEMUSA","Disjuntor monopolar 20A (troca borne defeito)","15.46","un",1,12.72,12.72,"A · GRUPO ✓"],
+["MEDIR","18/06","SEMUSA","Disjuntor monopolar 40-63A (geral 40A)","15.47","un",1,13.26,13.26,"B · GRUPO ✓"],
+["MEDIR","20/06","SAL SAL (salas novas)","Disjuntor bipolar 20A","15.48","un",2,28.68,57.36,"A · GRUPO ✓"],
+["MEDIR","20/06","SAL SAL (salas novas)","Cabo 2,5mm²","15.55","m",47,3.93,184.71,"B · GRUPO ✓"],
+["MEDIR","20/06","SEMUSA","Ponto de tomada 20A","15.72","un",3,361.51,1084.53,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","20/06","SEMUSA","Lâmpada LED bulbo 9W","15.78","un",2,14.97,29.94,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","22/06","GALPÃO RECANTO","Lâmpada LED bulbo 9W","15.78","un",1,14.97,14.97,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","23/06","PRONTO SOCORRO (raio-X)","Lâmpada LED tubular 18W","15.80","un",2,11.33,22.66,"A · GRUPO ✓ (data corrigida)"],
+["MEDIR","23/06","HOSPITAL (centro cirúrgico)","Disjuntor bipolar 20A","15.48","un",1,28.68,28.68,"A · GRUPO ✓"],
+["MEDIR","23/06","HOSPITAL (centro cirúrgico)","Cabo 2,5mm² (circuito novo)","15.55","m",60,3.93,235.80,"B · GRUPO ✓"],
+["MEDIR","25/06","PREFEITURA (cozinha)","Lâmpada LED tubular 9W","15.79","un",1,10.00,10.00,"B · Brendah · elétrica do balcão conf GRUPO"],
+["MEDIR","25-26/06","CANTAGALO + SEMUSA","Refletor LED (luminária fechada)","18.41","un",3,47.79,143.37,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","26/06","REFEITÓRIO UPA","Ponto de tomada 20A","15.72","un",2,361.51,723.02,"B · GRUPO ✓"],
+["MEDIR","27/06","DESGE (entrada padrão)","Quadro distribuição até 24 disj","15.35","un",1,471.35,471.35,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","27/06","DESGE","Disjuntor bipolar 32A","15.48","un",4,28.68,114.72,"A · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","27/06","DESGE","Disjuntor monopolar 20A","15.46","un",8,12.72,101.76,"A · Brendah"],
+["MEDIR","27/06","DESGE","Disjuntor monopolar 16A","15.46","un",8,12.72,101.76,"A · Brendah"],
+["MEDIR","27/06","DESGE","Cabo 2,5mm² (2 rolos)","15.55","m",200,3.93,786.00,"B · rolo=100m a evidenciar"],
+["MEDIR","27/06","DESGE","Cabo 10mm² (1 rolo)","15.58","m",100,10.16,1016.00,"B · rolo=100m a evidenciar"],
+["MEDIR","27/06-06/07","UPA + ÂNCORA + HOSPITAL","Chuveiro elétrico — fornecimento (5 confirmados)","18.16","un",5,92.25,461.25,"A · GRUPO ✓"],
+["MEDIR","21-25/06","PS + HOSPITAL + CANTAGALO","Chuveiro elétrico — fornecimento (3+2+1)","18.16","un",6,92.25,553.50,"B · Brendah · CONFIRMAR NO GRUPO"],
+["MEDIR","30/06","PRONTO SOCORRO (confirmar local)","Torneira p/ pia ou tanque em metal","18.19","un",2,49.97,99.94,"B · GRUPO ✓ troca · local e tipo a confirmar"],
+["MEDIR","01/07","(unidade a confirmar)","Disjuntor tripolar 125-160A (trocado 125A)","15.51","un",1,273.49,273.49,"B · GRUPO ✓ · saldo 9"],
+["MEDIR","01/07","(unidade a confirmar)","Lâmpada LED tubular","15.80","un",4,11.33,45.32,"B · GRUPO ✓"],
+["MEDIR","01/07","CASA DE RECUPERAÇÃO","Lâmpada LED bulbo 9W","15.78","un",5,14.97,74.85,"B · GRUPO ✓"],
+["MEDIR","06/07","POSTO ÂNCORA (vest. masculino)","Instalação de chuveiro elétrico c/ tubulação","15.11","un",2,478.27,956.54,"B · GRUPO ✓ cano novo · saldo 37"],
+["MEDIR","07/07","HOSPITAL (circuito do ar)","Ponto de tomada 20A","15.72","un",2,361.51,723.02,"B · GRUPO ✓"],
+["MEDIR","07/07","HOSPITAL (circuito do ar)","Cabo 4mm²","15.56","m",36,5.42,195.12,"A · GRUPO ✓ metragem explícita"],
+["MEDIR","07/07","HOSPITAL (circuito do ar)","Disjuntor monopolar 16A","15.46","un",1,12.72,12.72,"A · GRUPO ✓"],
+["MEDIR","07/07","HOSPITAL (fisioterapia)","Ponto de luz aparente (circuito iluminação novo)","15.66","un",1,292.89,292.89,"A · GRUPO ✓"],
+["RETIDO","24/06→?","SAL SAL (salas novas)","Ponto de tomada 20A — aguarda confirmação de execução","15.72","un",20,361.51,7230.20,"⚠ material era PEDIDO 24/06 · MEDIR SÓ APÓS confirmação"],
+["RETIDO","24/06→?","SAL SAL (salas novas)","Ponto de luz aparente — aguarda confirmação de execução","15.66","un",8,292.89,2343.12,"⚠ idem"],
+["PLEITO","jun-jul","várias","Plafonier c/ globo — item 18.47 existe na EMOP mas SEM quantidade no contrato (~109 un)","18.47","un",109,44.22,4819.98,"preço estimado c/ BDI · pedir inclusão/aditivo"],
+["PLEITO","jun","CANTAGALO/EDMÉIA/ROCHA LEÃO","DPS 275V 45kA (6 un) + hastes de aterramento (3) — sem item no contrato","—","un",6,null,null,"spec obtida no grupo · DPS ≠ DDR"],
+["PLEITO","jun","SEMUSA/PS","Fotocélula (6 un), cabo 1,5mm² (2 rolos), canaletas avulsas (25+) — sem item","—","—",null,null,null,"pleito ou compor via administração"],
+["SATELITE","jun-jul","todas","Arrancamento de aparelho de iluminação (aparelhos novos no lugar de velhos)","5.23","un",110,7.00,770.00,"C · VALIDAR c/ Leony · saldo 1.129"],
+["SATELITE","jun-jul","todas","Retirada e recolocação de aparelho (lâmpadas tubulares em calha)","18.61","un",40,38.64,1545.60,"C · VALIDAR c/ Leony · fiscal já aceitou 30"],
+["SATELITE","jun-jul","todas","Transporte de carga (T x KM das entregas do mês)","4.1","txkm",200,0.92,184.00,"C · estimar c/ romaneios · fiscal já aceitou 1.032"],
+["PLEITO","junho","várias (PS, Cantagalo, Galpão...)","Lâmpada \"50W\" — 61 un SEM equivalente EMOP — definir equivalência (pergunta 11)","—","un",61,null,null,"se equiparar ao LED bulbo 15.78: ~R$ 913"],
+["PLEITO","junho","várias (SEMUSA, Casa da Criança...)","Lâmpada \"30W\" — ~45 un — candidata: fluor 32W (15.76, saldo 89)","15.76","un",45,null,null,"se aprovado: ~R$ 668"],
+["PLEITO","junho","PS, DESGE, Saúde Mental, SEMUSA","Lâmpada/luminária SLIM — ~20 un — definir item (18.42 só 14 de saldo restante)","—","un",20,null,null,"se luminária: ~R$ 1.339 limitado ao saldo"],
+["PLEITO","19/06","HOSPITAL MUNICIPAL","Linha d'água 32mm (30m tubo + conexões) — EMOP só tem 25mm ou 40mm — decisão do engenheiro","—","m",30,null,null,"25mm: R$ 311 · 40mm: R$ 404 · execução: pergunta 2"]
+];
+var ADM = [
+["A.2","Engenheiro pleno","H",88,178.30,15690.40],
+["A.4","Encarregado de obra","H",176,45.31,7974.56],
+["A.5","Técnico de edificações","H",176,45.31,7974.56],
+["A.8","Auxiliar técnico","H",176,20.73,3648.48],
+["A.12","Caminhão carroceria fixa c/ motorista","H",176,139.26,24509.76],
+["A.15","Veículo de passeio c/ motorista","H",176,77.88,13706.88],
+["A.16","Camionete pick-up c/ motorista (3 un)","H",528,93.93,49595.04]
+];
+var MO = [
+["1.1","Bombeiro hidráulico","H",176,27.22,4790.72],
+["1.2","Eletricista (2 equipes: Neilson e Queiroz — chat prova 20 dias)","H",704,27.22,19162.88],
+["1.3","Pedreiro","H",352,27.22,9581.44],
+["1.4","Serralheiro","H",176,29.31,5158.56],
+["1.5","Servente","H",1408,19.67,27695.36]
+];
+var OUTROS = [
+["4.1","Transporte de carga (estimativa igual abril; ajustar c/ romaneios)","txkm",285,0.92,262.20],
+["—","Serviços de campo deduzidos — famílias 05/14/15/18 (22 itens, saldos conferidos)","vb",1,22946.98,22946.98]
+];
+var PERG = [
+[1,"SAL SAL salas novas: as 20 tomadas, 8 interruptores e 11 plafons da lista de 24/06 foram INSTALADOS? Quando concluiu?","R$ 9.573 retidos"],
+[2,"Serviços que não achei no grupo: SEMUSA (13, 20, 21, 25 e 26/06), SAL SAL (14/06), COAD (21/06), Cantagalo (25/06), Galpão Recanto (22/06), DESGE entrada padrão (27/06) e hidráulica tubos 32mm Hospital (19/06) — quem executou? Foi relatado em outro grupo?","~R$ 6.000 já incluídos com ressalva"],
+[3,"Chuveiros de 21 a 25/06 (PS 3, Hospital 2, Cantagalo 1): confirmam a troca?","R$ 553"],
+[4,"Telhado do PS (abril): quantos m² de manta térmica/asfáltica foram aplicados?","até R$ 8.375 (item 16.16)"],
+[5,"Nelson Martins (02/07): a lista (30 lâmp 50W + plafonier, 20 de 9W, 17 tubulares, 10 tomadas 20A, louças) foi EXECUTADA ou é levantamento?","~R$ 5.000 se executado"],
+[6,"Torneiras trocadas em 30/06: qual unidade? Pia, lavatório ou tanque?","R$ 100–475"],
+[7,"Disjuntor 125A + 8 lâmpadas trocadas em 01/07: qual unidade?","memória de cálculo"],
+[8,"Fechadura de 16/06: qual unidade? Veio kit completo (maçaneta/dobradiças)?","R$ 150"],
+[9,"Rolos de cabo (tenda 02/06, DESGE 27/06 x3): rolo padrão de 100m? Sobrou cabo?","R$ 3.500 dependem da metragem"],
+[10,"Regra geral: os aparelhos velhos (plafons, luminárias, tartarugas, refletores) foram retirados? As lâmpadas tubulares exigiram abrir/descer calha?","+R$ 2.300 (arrancamento/retirada)"],
+[11,"Lâmpadas ditas \"de 50W\" (61 no período) e \"30W\" (45): o que são exatamente (LED bulbo? potência real? base)? E as \"SLIM\": luminária completa ou só lâmpada? Foto de uma etiqueta resolve","até R$ 2.900 em equivalências"],
+[12,"Nova Esperança: a troca de tomada da OS EE19FB2C (26/06) foi concluída? Edmar: vincular essa OS oficial na medição","rastreabilidade p/ fiscal"],
+[13,"POSTO NOVA CIDADE: a planilha elétrica registra 5 tomadas duplas + 29 tomadas simples 20A (sem data). Foi EXECUTADO ou é levantamento? Quem fez e quando?","até R$ 12.291 (34 pontos 15.72 — saldo comporta)",1],
+[14,"DESGE entrada padrão (27/06): além do quadro, a planilha lista caixa padrão, disjuntor 70A, disjuntor 60A tripolar, kit de aterramento (haste + conector) e prensa cabo 1\". A entrada foi concluída com aterramento?","disjuntores extras + reforça pleito de aterramento",1],
+[15,"Bóias automáticas: 2 na SEMUSA (11/06) e 2 na Saúde Mental (aba civil). Foram instaladas? Em qual reservatório/prédio?","família hidráulica 15.17–15.24 nunca medida",1],
+[16,"CIVIL (p/ Leony e Renan): a aba CIVIL da planilha registra pintura PS 2.168m² + Sal Sal 648m² + Saúde Mental 266m² + Hospital 149m², drenagem do Hospital (90m de tubo 100mm + valas + 11,9m³ de concreto), obra da Extensão do Bosque, alvenaria+emboço do Recanto, drywall ~89m² e a manta do PS (25m² — pergunta 4!). Confirmar períodos de execução p/ montar a dedução civil","potencial R$ 100–190 mil só em pintura (17.1 + 17.5)",1]
+];
+
+// ================= HELPERS =================
+function rs(v){return v==null?"—":"R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function nbr(v){return v==null?"—":v.toLocaleString("pt-BR")}
+function tab(i,btn){
+  document.querySelectorAll("main>section").forEach(function(s,j){s.style.display=j===i?"":"none"});
+  document.querySelectorAll("nav button").forEach(function(b){b.classList.remove("on")});
+  btn.classList.add("on");
+  window.scrollTo(0,0);
+}
+function copiar(txt,btn){
+  function fb(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);done()}
+  function done(){if(!btn)return;var o=btn.textContent;btn.textContent="copiado ✓";setTimeout(function(){btn.textContent=o},1600)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,fb)}else{fb()}
+}
+
+// ================= RESUMO =================
+var totMedir=RESUMO.reduce(function(a,r){return a+r[6]},0);
+var totRetido=SERV.filter(function(r){return r[0]==="RETIDO"}).reduce(function(a,r){return a+(r[8]||0)},0);
+document.getElementById("kMedir").textContent=rs(totMedir);
+document.getElementById("kRetido").textContent=rs(totRetido);
+document.getElementById("kItens").textContent=RESUMO.length;
+document.getElementById("wRetido").textContent=rs(totRetido);
+(function(){
+  var tb=document.querySelector("#tbResumo tbody");
+  RESUMO.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td><b>"+r[0]+"</b></td><td>"+r[1]+"</td><td>"+r[2]+"</td><td>"+r[3]+"</td><td class='num'>"+nbr(r[4])+"</td><td class='num'>"+rs(r[5])+"</td><td class='num'><b>"+rs(r[6])+"</b></td>";
+    tb.appendChild(tr);
+  });
+  var tr=document.createElement("tr");
+  tr.innerHTML="<td colspan='6' style='text-align:right'><b>TOTAL MEDIR AGORA</b></td><td class='num' style='background:var(--greenbg)'><b>"+rs(totMedir)+"</b></td>";
+  tb.appendChild(tr);
+})();
+function copiarResumo(btn){
+  function pt(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:false})}
+  var lin=["ITEM\tCÓD. EMOP\tSERVIÇO\tUN\tQTDE\tPREÇO BDI\tVALOR R$"];
+  RESUMO.forEach(function(r){lin.push(r[0]+"\t"+r[1]+"\t"+r[2]+"\t"+r[3]+"\t"+String(r[4]).replace(".",",")+"\t"+pt(r[5])+"\t"+pt(r[6]))});
+  lin.push("\t\tTOTAL MEDIR AGORA\t\t\t\t"+pt(totMedir));
+  copiar(lin.join("\n"),btn);
+}
+
+// ================= MEMORIA =================
+var fSec="",fUnid="",fBusca="",fConf=false;
+(function(){
+  var us={};SERV.forEach(function(r){us[r[2]]=1});
+  var sel=document.getElementById("fUnid");
+  Object.keys(us).sort().forEach(function(u){var o=document.createElement("option");o.value=u;o.textContent=u;sel.appendChild(o)});
+  sel.onchange=function(){fUnid=this.value;renderServ()};
+  document.getElementById("fBusca").oninput=function(){fBusca=this.value.toLowerCase();renderServ()};
+  document.getElementById("fConf").onchange=function(){fConf=this.checked;renderServ()};
+  document.querySelectorAll("#fSec .chip").forEach(function(c){
+    c.onclick=function(){document.querySelectorAll("#fSec .chip").forEach(function(x){x.classList.remove("on")});c.classList.add("on");fSec=c.dataset.v;renderServ()};
+  });
+})();
+function pillSec(s){
+  if(s==="MEDIR")return"<span class='pill p-ok'>MEDIR</span>";
+  if(s==="RETIDO")return"<span class='pill p-ped'>RETIDO</span>";
+  if(s==="PLEITO")return"<span class='pill p-gold'>PLEITO</span>";
+  return"<span class='pill p-info'>SATÉLITE</span>";
+}
+function renderServ(){
+  var tb=document.querySelector("#tbServ tbody");tb.innerHTML="";
+  var tot={MEDIR:0,RETIDO:0,PLEITO:0,SATELITE:0},n=0;
+  SERV.forEach(function(r){
+    if(fSec&&r[0]!==fSec)return;
+    if(fUnid&&r[2]!==fUnid)return;
+    if(fConf&&r[9].indexOf("CONFIRMAR NO GRUPO")<0)return;
+    if(fBusca){var blob=(r.join(" ")).toLowerCase();if(blob.indexOf(fBusca)<0)return}
+    n++;if(r[8]!=null)tot[r[0]]+=r[8];
+    var obs=r[9].replace(/CONFIRMAR NO GRUPO/,"<span class='pill p-conf'>CONFIRMAR NO GRUPO</span>");
+    var tr=document.createElement("tr");tr.className="sec-"+r[0];
+    tr.innerHTML="<td>"+pillSec(r[0])+"</td><td style='white-space:nowrap'>"+r[1]+"</td><td>"+r[2]+"</td><td>"+r[3]+"</td><td style='white-space:nowrap'><b>"+r[4]+"</b></td><td>"+r[5]+"</td><td class='num'>"+nbr(r[6])+"</td><td class='num'>"+rs(r[7]).replace("R$ ","")+"</td><td class='num'><b>"+rs(r[8]).replace("R$ ","")+"</b></td><td style='font-size:11.5px;color:var(--mut)'>"+obs+"</td>";
+    tb.appendChild(tr);
+  });
+  document.getElementById("totais").innerHTML=
+    n+" linhas · MEDIR <b>"+rs(tot.MEDIR)+"</b> · RETIDO <b>"+rs(tot.RETIDO)+"</b> · PLEITO <b>"+rs(tot.PLEITO)+"</b> · SATÉLITE <b>"+rs(tot.SATELITE)+"</b>";
+}
+renderServ();
+
+// ================= MONTADA =================
+function fillMont(id,rows){
+  var tb=document.querySelector(id+" tbody"),sum=0;
+  rows.forEach(function(r){sum+=r[5];
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td><b>"+r[0]+"</b></td><td>"+r[1]+"</td><td>"+r[2]+"</td><td class='num'>"+nbr(r[3])+"</td><td class='num'>"+rs(r[4])+"</td><td class='num'><b>"+rs(r[5])+"</b></td>";
+    tb.appendChild(tr);
+  });
+  var tr=document.createElement("tr");
+  tr.innerHTML="<td colspan='5' style='text-align:right'><b>Subtotal mês cheio</b> <span class='note'>(1/3 = "+rs(sum/3)+")</span></td><td class='num' style='background:var(--bluebg)'><b>"+rs(sum)+"</b></td>";
+  tb.appendChild(tr);
+}
+fillMont("#tbA",ADM);fillMont("#tbMO",MO);
+(function(){
+  var tb=document.querySelector("#tbOut tbody");
+  OUTROS.forEach(function(r){
+    var tr=document.createElement("tr");
+    tr.innerHTML="<td><b>"+r[0]+"</b></td><td>"+r[1]+"</td><td>"+r[2]+"</td><td class='num'>"+nbr(r[3])+"</td><td class='num'>"+rs(r[4])+"</td><td class='num'><b>"+rs(r[5])+"</b></td>";
+    tb.appendChild(tr);
+  });
+})();
+
+// ================= PERGUNTAS =================
+(function(){
+  var box=document.getElementById("pergs");
+  PERG.forEach(function(p){
+    var d=document.createElement("div");d.className="perg";
+    var novo=p[3]?"<span class='pill p-gold'>NOVA · 09/07</span> ":"";
+    d.innerHTML="<div class='top'><b>Pergunta "+p[0]+"</b><span>"+novo+"<span class='pill p-ok'>libera: "+p[2]+"</span></span></div><div class='txt'>"+p[1]+"</div>";
+    var b=document.createElement("button");b.className="btn mini sec";b.textContent="📋 Copiar p/ o grupo";
+    b.onclick=function(){copiar(p[1],b)};
+    d.appendChild(b);box.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>

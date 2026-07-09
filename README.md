@@ -12,13 +12,33 @@ Esteira do dado: **grupo do WhatsApp → reporte padronizado → painel do engen
 | `painel.html#painel` | **Engenheiro (Leony)**: cola o export do grupo → fechamento por unidade, pedidos pendentes, relatos incompletos, estimativa EMOP | ✅ ativo |
 | `painel.html#reporte` | **Campo (eletricistas/equipes)**: registro de serviço em 1 min → mensagem padronizada p/ o grupo | ✅ ativo |
 | `painel.html#regras` | todos — as 5 regras do reporte | ✅ ativo |
-| Medição (Edmar) | esteira da medição, itens EMOP, retidos, saldos | 🔜 spec com Leony |
+| `medicao.html` | **Medição (Edmar)**: 22 itens EMOP auditados p/ lançar, memória de cálculo filtrável, cenários do mês e as 16 perguntas que liberam medição | ✅ ativo |
 | Gestão (diretoria) | ritmo do contrato, cenários | 🔜 spec com Leony |
 | Almoxarifado | pedidos/estoque (padrão do contrato Educação) | 🔜 |
 
 ## Stack
 
-HTML + CSS + JS puros, **zero build, zero dependência**. Funciona aberto do arquivo, no GitHub Pages ou na Vercel (importar o repo → framework "Other" → deploy).
+**Vite** (multi-página) + HTML/CSS/JS. As páginas são autossuficientes (dados embutidos, funcionam offline); o Vite entra como esteira de build/deploy e prepara a fase de produção com **Supabase** como banco de dados.
+
+```bash
+npm install     # uma vez
+npm run dev     # desenvolvimento (http://localhost:5173)
+npm run build   # gera dist/ para produção
+```
+
+### Deploy (Vercel)
+
+1. Vercel → **Add New → Project** → importar este repositório
+2. Framework preset: **Vite** (detectado automaticamente) — build `vite build`, saída `dist/`
+3. Deploy. As três páginas ficam em `/`, `/painel.html` e `/medicao.html`
+
+### Supabase (produção)
+
+- Esquema inicial proposto em [`supabase/schema.sql`](supabase/schema.sql) (relatos → itens de medição → perguntas), com RLS habilitado
+- Cliente pronto em [`src/lib/supabase.js`](src/lib/supabase.js) — só liga quando as variáveis existirem:
+  - local: copiar `.env.example` → `.env`
+  - Vercel: Settings → Environment Variables → `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (usar somente a chave **anon**; nunca a service_role no front)
+- Sem as variáveis, tudo continua funcionando standalone — nada quebra
 
 ## Como funciona o painel do engenheiro
 
@@ -35,7 +55,10 @@ HTML + CSS + JS puros, **zero build, zero dependência**. Funciona aberto do arq
 
 ## Roadmap
 
-- [ ] Definir com o Leony os painéis de Medição, Gestão e Almoxarifado
+- [x] Painel de Medição (Edmar) — `medicao.html` (v1.1, 09/07)
+- [x] Esteira Vite + scaffolding Supabase
+- [ ] Definir com o Leony os painéis de Gestão e Almoxarifado
 - [ ] Publicar na Vercel e distribuir o link `#reporte` para as equipes
+- [ ] Criar o projeto Supabase e rodar `supabase/schema.sql` (aí as páginas passam a ler/escrever no banco)
 - [ ] Dicionário de materiais → EMOP ampliado (hoje ~30 regras embutidas)
 - [ ] Futuro: mesma esteira automatizada via n8n + Evolution (padrão do contrato Educação)
