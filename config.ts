@@ -48,7 +48,7 @@ export const ACESSOS: Acesso[] = [
   { rotulo: 'Emiliano', email: 'emiliano@fpv.app', dica: 'encarregado', emoji: '🔧', grupo: 'campo' },
   { rotulo: 'Lorran', email: 'lorran@fpv.app', dica: 'almoxarifado', emoji: '📦', grupo: 'campo' },
   { rotulo: 'Leony', email: 'leony@fpv.app', dica: 'engenharia', emoji: '👷', grupo: 'gestao' },
-  { rotulo: 'Renan', email: 'renan@fpv.app', dica: 'gestão', emoji: '📊', grupo: 'gestao' },
+  { rotulo: 'Renan', email: 'renan@fpv.app', dica: 'dev · gestão', emoji: '💻', grupo: 'gestao' },
   { rotulo: 'Lucas', email: 'lucas@fpv.app', dica: 'gestor geral', emoji: '📊', grupo: 'gestao' },
   { rotulo: 'Rafael', email: 'rafael@fpv.app', dica: 'gestão', emoji: '📊', grupo: 'gestao' },
   { rotulo: 'Edmar', email: 'edmar@fpv.app', dica: 'medição', emoji: '📐', grupo: 'gestao' },
