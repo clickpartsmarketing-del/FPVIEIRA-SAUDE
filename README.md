@@ -15,7 +15,7 @@ continuam no ar (WhatsApp → painel → dedução).
 |---|---|---|
 | `/` (app React) | todos — login em 2 toques, tela por papel | 🔶 aguardando Supabase |
 | — Painel pessoal | Neilson/Queiroz/Emiliano: designadas, prioridade, material | 🔶 |
-| — Almoxarifado | Thiago Rafael (usuário-âncora) | 🔶 |
+| — Almoxarifado | Lorran Souza (usuário-âncora) | 🔶 |
 | — Gestão | Leony (rota/conferência) · Edmar (5 selos/MED) · Renan/Lucas/Rafael (boletim) | 🔶 |
 | `/painel.html` | Leony: cola o export do grupo WhatsApp → fechamentos, pendências, estimativa EMOP | ✅ ativo (fase 1) |
 | `/medicao.html` | Edmar: pacote de junho — 22 itens auditados, memória, cenários, 16 perguntas | ✅ ativo (fase 1) |
@@ -35,11 +35,14 @@ npm run build   # gera dist/
 ## Subir produção (na ordem)
 
 1. **Supabase** — criar projeto (grátis) e rodar no SQL Editor, na ordem:
-   `supabase.sql` → `supabase_vps.sql` (+ `alter table os_campo add column
-   if not exists solicitado text;`) → `almoxarifado.sql` → `ALMOX-V2.sql`
-   → `PENDENTES-CONSOLIDADO.sql` → `REALTIME-E-TIPO.sql` →
-   `AUDITORIA-EDICOES.sql`. Bucket `fotos-os` público (policies no
-   supabase.sql). Conferência: `CONFERENCIA-GERAL.sql` (só leitura).
+   `supabase/migrations/0000_schema_version.sql` →
+   `supabase/migrations/0001_baseline.sql` (edição Saúde: seq_fict=1,
+   policies com lorran@). ⛔ NÃO usar `legado-educacao/` (3 arquivos
+   regridem segurança — ver `seguranca/08-migrations-PLANO.md`). Bucket
+   `fotos-os` público (2 policies insert/select p/ authenticated).
+   Conferência: `CONFERENCIA-GERAL.sql` (só leitura). Fase 2:
+   `seguranca/01→04→02→03` em modo observação. Roteiro completo:
+   `DEPLOY-SAUDE.md`.
 2. **Usuários** — Auth → Add user (Auto Confirm) para cada e-mail de
    `ACESSOS` (config.ts).
 3. **Vercel** — importar o repo (preset **Vite** automático) + 2 env vars:

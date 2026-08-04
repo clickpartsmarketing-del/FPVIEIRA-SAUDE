@@ -169,7 +169,7 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
   // O ALMOXARIFE É O CONTROLADOR DOS EMERGENCIAIS (lição #1 da expansão:
   // o fluxo real começa no balcão — o campo pega material ANTES de
   // registrar a O.S.), então a fictícia nasce AQUI: prefixo por quem
-  // retira. Saúde: Thiago Rafael no balcão; N Neilson / Q Queiroz /
+  // retira. Saúde: Lorran Souza no balcão; N Neilson / Q Queiroz /
   // E Emiliano.
   const PREFIXO_DEST: Record<string, string> = {
     'neilson': 'N',

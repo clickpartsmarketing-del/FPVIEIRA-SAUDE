@@ -120,8 +120,8 @@ const KpiNumero: React.FC<{ valor: number | string; rotulo: string; tone?: strin
 const AnelProgresso: React.FC<{ pct: number; centro: string; sub?: string }> = ({ pct, centro, sub }) => (
   <div className="relative w-12 h-12 shrink-0">
     <svg viewBox="0 0 100 100" className="-rotate-90 w-12 h-12">
-      <circle cx="50" cy="50" r="42" fill="none" stroke="#E3F0EB" strokeWidth="12" />
-      <circle cx="50" cy="50" r="42" fill="none" stroke="#0F6E56" strokeWidth="12" strokeLinecap="round"
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#E6F1FB" strokeWidth="12" />
+      <circle cx="50" cy="50" r="42" fill="none" stroke="#185FA5" strokeWidth="12" strokeLinecap="round"
         strokeDasharray="264" strokeDashoffset={264 * (1 - Math.min(1, Math.max(0, pct)))}
         style={{ transition: 'stroke-dashoffset 700ms' }} />
     </svg>
@@ -376,10 +376,10 @@ const TelaGestor: React.FC<Props> = ({ lista, aoVerLista }) => {
         <h3 className="font-bold text-stone-900 mb-3">Funil da grana</h3>
         <BarraFunil aoTocar={aoVerLista} linhas={[
           { rotulo: 'Na fila', n: porEstagio.fila.length, cor: '#d6d3d1', anotacao: ha(idadeMaisVelha(porEstagio.fila, 'entrada')) },
-          { rotulo: 'Na rua', n: porEstagio.rua.length, cor: '#5FA98F', anotacao: ha(idadeMaisVelha(porEstagio.rua, 'entrada')) },
+          { rotulo: 'Na rua', n: porEstagio.rua.length, cor: '#5F93C4', anotacao: ha(idadeMaisVelha(porEstagio.rua, 'entrada')) },
           { rotulo: 'Feito, sem assinatura', n: porEstagio.feito.length, cor: '#fbbf24', anotacao: ha(idadeMaisVelha(porEstagio.feito, 'conclusao')), anotacaoRed: idadeAssMax > 15 },
-          { rotulo: 'Assinado, esperando medição', n: porEstagio.assinado.length, cor: '#0F6E56', anotacao: ha(idadeMaisVelha(porEstagio.assinado, 'conclusao')) },
-          { rotulo: 'Medido ✓', n: porEstagio.medido.length, cor: '#094537' },
+          { rotulo: 'Assinado, esperando medição', n: porEstagio.assinado.length, cor: '#185FA5', anotacao: ha(idadeMaisVelha(porEstagio.assinado, 'conclusao')) },
+          { rotulo: 'Medido ✓', n: porEstagio.medido.length, cor: '#0F3C6A' },
         ]} />
         <p className="text-[11px] text-stone-400 mt-3 border-t border-dashed border-stone-200 pt-2">
           Aqui morreram 141 O.S. na planilha velha. Aqui não.
@@ -444,7 +444,7 @@ const TelaGestor: React.FC<Props> = ({ lista, aoVerLista }) => {
         {concMes.length >= 10 && (
           <div className="mt-3 border-t border-stone-100 pt-3">
             <BarraSegmentada segmentos={[
-              { n: top2, cor: '#0C5A47', rotulo: 'top 2 executores' },
+              { n: top2, cor: '#134D87', rotulo: 'top 2 executores' },
               { n: concMes.length - top2, cor: '#e7e5e4', rotulo: 'resto da equipe' },
             ]} />
             <p className={`text-xs mt-1.5 ${pctTop2 > 60 ? 'text-amber-700 font-bold' : 'text-stone-500'}`}>
@@ -458,8 +458,8 @@ const TelaGestor: React.FC<Props> = ({ lista, aoVerLista }) => {
       <Card>
         <h3 className="font-bold text-stone-900 mb-3">{med} — como está o pacote</h3>
         <BarraSegmentada segmentos={[
-          { n: naMed, cor: '#094537', rotulo: 'na medição' },
-          { n: prontas, cor: '#5FA98F', rotulo: 'prontas' },
+          { n: naMed, cor: '#0F3C6A', rotulo: 'na medição' },
+          { n: prontas, cor: '#5F93C4', rotulo: 'prontas' },
           { n: emRisco, cor: '#fbbf24', rotulo: 'em risco' },
         ]} />
         {emRisco > 0 && (
@@ -517,13 +517,13 @@ const TelaEngenheiro: React.FC<Props> = ({ lista, aoEditar, aoMudar }) => {
       <EmptyEnsina miolo={
         <Card>
           <svg viewBox="0 0 300 90" className="w-full h-20 mb-2">
-            <path d="M 15 70 Q 90 20 150 50 T 285 30" fill="none" stroke="#5FA98F" strokeWidth="2.5" strokeDasharray="6 6" />
-            <circle cx="15" cy="70" r="11" fill="#0F6E56" />
+            <path d="M 15 70 Q 90 20 150 50 T 285 30" fill="none" stroke="#5F93C4" strokeWidth="2.5" strokeDasharray="6 6" />
+            <circle cx="15" cy="70" r="11" fill="#185FA5" />
             <text x="15" y="74" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">1</text>
-            <circle cx="150" cy="50" r="11" fill="white" stroke="#5FA98F" strokeWidth="2" />
-            <text x="150" y="54" textAnchor="middle" fill="#0F6E56" fontSize="11" fontWeight="bold">2</text>
-            <circle cx="285" cy="30" r="11" fill="white" stroke="#5FA98F" strokeWidth="2" />
-            <text x="285" y="34" textAnchor="middle" fill="#0F6E56" fontSize="11" fontWeight="bold">3</text>
+            <circle cx="150" cy="50" r="11" fill="white" stroke="#5F93C4" strokeWidth="2" />
+            <text x="150" y="54" textAnchor="middle" fill="#185FA5" fontSize="11" fontWeight="bold">2</text>
+            <circle cx="285" cy="30" r="11" fill="white" stroke="#5F93C4" strokeWidth="2" />
+            <text x="285" y="34" textAnchor="middle" fill="#185FA5" fontSize="11" fontWeight="bold">3</text>
           </svg>
           <h3 className="font-bold text-stone-900 text-lg">Sua rota monta sozinha.</h3>
           <p className="text-sm text-stone-500 mt-1 mb-3">Quando as O.S. do campo caírem aqui, o app ordena as escolas por urgência e você só segue a fila.</p>
@@ -729,7 +729,7 @@ const TelaEngenheiro: React.FC<Props> = ({ lista, aoEditar, aoMudar }) => {
   return (
     <div className="space-y-4">
       {/* header sticky da rota */}
-      <div className="sticky top-[60px] z-10 -mx-4 px-4 py-2 bg-[#F4F6F3]/95 backdrop-blur print-hidden">
+      <div className="sticky top-[60px] z-10 -mx-4 px-4 py-2 bg-[#F3F5F8]/95 backdrop-blur print-hidden">
         <div className="flex items-center gap-3">
           <AnelProgresso pct={pctDia} centro={String(totalParadas)} sub="paradas" />
           <div className="flex-1">
@@ -1034,7 +1034,7 @@ const TelaMedicao: React.FC<Props> = ({ lista, aoVerLista }) => {
             const queda = i > 0 ? cumulativo[i - 1] - n : 0;
             const max = Math.max(1, cumulativo[0]);
             const pct = n > 0 ? Math.max(8, (n / max) * 100) : 0;
-            const cores = ['#5FA98F', '#3d8f74', '#22795f', '#0F6E56', '#094537'];
+            const cores = ['#5F93C4', '#3D7CB4', '#2A6CA9', '#185FA5', '#0F3C6A'];
             return (
               <button key={i} onClick={() => { setFiltroSelo(s => (s === i ? null : i)); setFiltroNivel('todas'); }}
                 disabled={i === 0}

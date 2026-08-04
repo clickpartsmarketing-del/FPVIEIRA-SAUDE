@@ -13,9 +13,11 @@ export const VOZ_ATIVA = false;
 // conferência; Edmar na esteira de medição; os demais no boletim.
 export const GESTORES = ['leony', 'renan', 'lucas', 'rafael', 'edmar'];
 
-// Thiago Rafael cuida do estoque — no padrão da Educação o almoxarife
-// é o usuário-ÂNCORA do onboarding (1º a entrar, movimenta o dia todo)
-export const ALMOX = ['thiago'];
+// Lorran Souza cuida do estoque (troca de 03/08/2026 — saiu Thiago
+// Rafael; regra nº 11: quem sai da operação sai das listas). No padrão
+// da Educação o almoxarife é o usuário-ÂNCORA do onboarding (1º a
+// entrar, movimenta o dia todo).
+export const ALMOX = ['lorran'];
 
 // Equipes de emergência POR ZONA de fiscal (padrão Educação). No Saúde
 // as zonas ainda não foram definidas — os eletricistas entram abaixo
@@ -44,7 +46,7 @@ export const ACESSOS: Acesso[] = [
   { rotulo: 'Neilson', email: 'neilson@fpv.app', dica: 'eletricista', emoji: '⚡', grupo: 'campo' },
   { rotulo: 'Queiroz', email: 'queiroz@fpv.app', dica: 'eletricista', emoji: '⚡', grupo: 'campo' },
   { rotulo: 'Emiliano', email: 'emiliano@fpv.app', dica: 'encarregado', emoji: '🔧', grupo: 'campo' },
-  { rotulo: 'Thiago Rafael', email: 'thiago@fpv.app', dica: 'almoxarifado', emoji: '📦', grupo: 'campo' },
+  { rotulo: 'Lorran', email: 'lorran@fpv.app', dica: 'almoxarifado', emoji: '📦', grupo: 'campo' },
   { rotulo: 'Leony', email: 'leony@fpv.app', dica: 'engenharia', emoji: '👷', grupo: 'gestao' },
   { rotulo: 'Renan', email: 'renan@fpv.app', dica: 'gestão', emoji: '📊', grupo: 'gestao' },
   { rotulo: 'Lucas', email: 'lucas@fpv.app', dica: 'gestor geral', emoji: '📊', grupo: 'gestao' },

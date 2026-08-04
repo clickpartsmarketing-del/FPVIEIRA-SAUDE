@@ -52,3 +52,48 @@ export const MATERIAIS = [
   "TAMPA CEGA 4X4", "ELETRODO P/ SOLDA", "DISCO DE CORTE", "SILICONE TUBO",
   "ESPUMA EXPANSIVA", "SACO DE LIXO (PCT)", "LUVA DE LÁTEX (PAR)"
 ];
+
+export const UNIDADES = ["UND", "M", "M²", "M³", "KG", "L", "CX", "PCT", "SC", "RL", "JOGO", "PAR"];
+
+// KIT EMERGENCIAL (padrão herdado da Educação, itens casados com o
+// catálogo da Saúde): a listagem que a equipe de emergência carrega —
+// no formulário, cada item usado dá baixa no estoque automaticamente,
+// amarrado à O.S. (origem KIT EMERGENCIAL).
+export interface ItemKit { descricao: string; unidade: string; }
+export const KIT_EMERGENCIAL: ItemKit[] = [
+  { descricao: "CIMENTO 50KG", unidade: "SC" },
+  { descricao: "AREIA (SACO)", unidade: "SC" },
+  { descricao: "SIFÃO", unidade: "UND" },
+  { descricao: "TORNEIRA DE LAVATÓRIO", unidade: "UND" },
+  { descricao: "REPARO DE DESCARGA ACOPLADA", unidade: "UND" },
+  { descricao: "FITA TEFLON", unidade: "UND" },
+  { descricao: "COLA PVC", unidade: "UND" },
+  { descricao: "TUBO 25MM SOLDÁVEL (M)", unidade: "M" },
+  { descricao: "JOELHO 25", unidade: "UND" },
+  { descricao: "LUVA 25", unidade: "UND" },
+  { descricao: "LÂMPADA TUBULAR LED 18W 1,20M", unidade: "UND" },
+  { descricao: "DISJUNTOR MONO 20A", unidade: "UND" },
+  { descricao: "CABO FLEXÍVEL 2,5MM (M)", unidade: "M" },
+  { descricao: "TOMADA SIMPLES 20A", unidade: "UND" },
+  { descricao: "INTERRUPTOR 1 SEÇÃO", unidade: "UND" },
+  { descricao: "FITA ISOLANTE 20M", unidade: "UND" },
+  { descricao: "PARAFUSO 6MM + BUCHA", unidade: "UND" },
+  { descricao: "SILICONE TUBO", unidade: "UND" },
+];
+
+// Fornecedores da Saúde ainda não mapeados (contrato tem compras
+// próprias) — ajustar quando o Lorran trouxer a lista real.
+export const ORIGENS = ["ALMOXARIFADO", "COMPRA DIRETA", "OUTRO"];
+
+// MÍNIMO PADRÃO DO SETOR (regra herdada): quando o item não tem mínimo
+// próprio cadastrado, o alerta usa esta % do saldo inicial (contagem
+// física). O Lorran pode sobrescrever item a item no Cadastro.
+export const MINIMO_PADRAO_PCT: Record<string, number> = {
+  'ELÉTRICA': 20,
+  'HIDRÁULICA': 20,
+  'ESGOTO': 20,
+  'CIVIL': 15,
+  'PINTURA': 15,
+  'FERRAMENTAS': 0,   // ferramenta não é consumo — rastreia na aba própria
+  'DIVERSOS': 15,
+};

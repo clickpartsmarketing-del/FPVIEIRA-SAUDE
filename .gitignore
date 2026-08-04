@@ -18,3 +18,7 @@ node_modules/
 dist/
 .DS_Store
 Thumbs.db
+
+# icones do PWA sao arte do app, nao dado de contrato
+!public/icon-192.png
+!public/icon-512.png

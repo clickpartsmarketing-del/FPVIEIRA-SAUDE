@@ -4,18 +4,24 @@ App de campo da F.P. Vieira Engenharia para o contrato **FP.096 (Saúde,
 Rio das Ostras, contrato 005/2026, R$ 12.285.820,33, mar/26–fev/27,
 ~24 unidades)**: registro de O.S., almoxarifado, medição EMOP.
 Réplica parametrizada do app da Educação (FP.094) feita em 09/07/2026
-seguindo `EXPANSAO-5-CONTRATOS.md`. Stack: **React 19 + Vite + Tailwind
-CDN + Supabase** (auth + postgres + storage + realtime). Deploy: Vercel
-builda a cada push na `main`. NÃO há Node/npm nas máquinas locais —
-validação de build acontece na Vercel.
+seguindo `EXPANSAO-5-CONTRATOS.md`; **tema AZUL (#185FA5) + almoxarife
+Lorran + numeração F-1 + migrations auditadas aplicados em 03/08/2026**.
+Stack: **React 19 + Vite + Tailwind CDN + Supabase** (auth + postgres +
+storage + realtime). Deploy: Vercel builda a cada push na `main`. A
+máquina do Renan (nicol) tem Node v24 — dev server local funciona;
+validação final de build continua na Vercel.
 
-- ⚠ **Supabase AINDA NÃO CRIADO** — bootstrap: rodar na ordem
-  `supabase.sql` → `supabase_vps.sql` (+ `alter table os_campo add column
-  if not exists solicitado text;`) → `almoxarifado.sql` → `ALMOX-V2.sql` →
-  `PENDENTES-CONSOLIDADO.sql` → `REALTIME-E-TIPO.sql` →
-  `AUDITORIA-EDICOES.sql`; bucket `fotos-os` público (2 policies do
-  supabase.sql); usuários no Auth conforme `ACESSOS` em config.ts.
-  Conferência: `CONFERENCIA-GERAL.sql` (só leitura).
+- ⚠ **Supabase AINDA NÃO CRIADO** — bootstrap: rodar
+  `supabase/migrations/0000_schema_version.sql` + `0001_baseline.sql`
+  (edição Saúde: seq_fict=1, policies com lorran@) e depois, quando a
+  operação estabilizar, `seguranca/01→04→02→03` em modo observação
+  (método validado na Educação). ⛔ NÃO usar os SQLs de
+  `legado-educacao/` — 3 deles regridem segurança (auditoria 28/07,
+  `seguranca/08-migrations-PLANO.md`). Bucket `fotos-os` público (2
+  policies — paridade com a Educação; endurecer com seguranca/09);
+  usuários no Auth conforme `ACESSOS` em config.ts. Conferência:
+  `CONFERENCIA-GERAL.sql` (só leitura). Roteiro completo:
+  `DEPLOY-SAUDE.md`.
 - **Páginas standalone da fase 1 continuam publicadas**: `/painel.html`
   (painel do engenheiro — cola export do WhatsApp) e `/medicao.html`
   (pacote de junho do Edmar). Não dependem de Supabase. Entradas extras
@@ -53,7 +59,8 @@ validação de build acontece na Vercel.
 ## Papéis e logins (@fpv.app — criar no Auth quando o Supabase nascer)
 
 neilson · queiroz (eletricistas, painel pessoal N/Q) · emiliano
-(encarregado, E) · thiago (almoxarifado — usuário-âncora do onboarding) ·
+(encarregado, E) · lorran (almoxarifado — Lorran Souza, usuário-âncora do
+onboarding; trocou o Thiago Rafael em 03/08/2026) ·
 leony (engenheiro → TelaEngenheiro) · edmar (medição → TelaMedicao) ·
 renan / lucas / rafael (gestão → boletim; financeiro só lucas/rafael) ·
 brendah (assistente). Fonte: `ACESSOS` em config.ts.

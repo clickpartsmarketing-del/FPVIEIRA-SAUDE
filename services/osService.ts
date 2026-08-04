@@ -44,7 +44,8 @@ export const osService = {
     }
     // PISO ANTI-COLISÃO COM O PAPEL (conciliação 06/07: a contagem manual
     // já chegou a F-87): sem nº oficial e sem ref de equipe, o app gera o
-    // F-nº AQUI com piso 88 — o trigger do banco vira só reserva
+    // F-nº AQUI (Saúde: contagem própria, começa em F-1 — sem o piso 88
+    // da Educação) — o trigger do banco vira só reserva
     if (!payload.numero && !payload.fict_ref) {
       const f = await this.proximaF();
       if (f) payload.fict_ref = `F-${f}`;
@@ -135,7 +136,7 @@ export const osService = {
         supabase.from('os_campo').select('fict_ref').like('fict_ref', 'F-%'),
       ]);
       if (b.error) return null; // sem coluna fict_ref → trigger resolve
-      let m = 87;
+      let m = 0; // Saúde: sem piso herdado do papel da Educação
       const nf = (a.data?.[0] as any)?.numero_fict;
       if (nf && nf > m) m = nf;
       for (const r of (b.data as { fict_ref: string }[]) || []) {
@@ -186,10 +187,10 @@ export const osService = {
     return this.salvar(os); // 3 empates seguidos (improvável) → F-nn garante o registro
   },
 
-  // Próximo número da contagem FICTÍCIA (legado do Chat; piso atualizado
-  // p/ 88 após a conciliação mostrar o papel em F-87).
+  // Próximo número da contagem FICTÍCIA (legado do Chat; Saúde começa
+  // do 1 — contrato novo, sem contagem de papel herdada).
   async proximaFict(): Promise<number> {
-    const INICIO_FICT = 88;
+    const INICIO_FICT = 1;
     const { data, error } = await supabase
       .from('os_campo')
       .select('numero_fict')

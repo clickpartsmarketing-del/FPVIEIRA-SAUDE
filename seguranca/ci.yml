@@ -1,0 +1,74 @@
+# =============================================================
+# FPV Campo — CI   (copiar para .github/workflows/ci.yml)
+#
+# Trava o mínimo que impede regressão em produção:
+#   typecheck -> testes -> build
+#
+# NÃO roda lint de propósito: ESLint num Gestao.tsx de 1216 linhas
+# devolve centenas de avisos, o CI nasce vermelho e todo mundo aprende
+# a ignorar CI vermelho — que é pior do que não ter CI. Lint entra
+# depois, com --max-warnings fixado no número de hoje e descendo.
+#
+# PRÉ-REQUISITO: package-lock.json versionado (`npm ci` exige o lockfile).
+#   git add package-lock.json && git commit -m "chore: versiona lockfile"
+# =============================================================
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# PR novo cancela a execução anterior do mesmo PR
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: typecheck · testes · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # npm ci = instala EXATAMENTE o lockfile. É o que garante que o
+      # CI testa as mesmas versões que a Vercel vai buildar.
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Typecheck (tsc --noEmit)
+        run: npm run typecheck
+
+      - name: Testes (vitest)
+        run: npm test
+
+      # Build com env FALSA de propósito: o objetivo aqui é provar que o
+      # bundle COMPILA, não falar com o banco. supabaseClient.ts já tem
+      # fallback para env ausente (configOk=false) — nada quebra.
+      # As chaves reais ficam só na Vercel; segredo nenhum entra no CI.
+      - name: Build de produção
+        env:
+          VITE_SUPABASE_URL: https://ci-sem-banco.supabase.co
+          VITE_SUPABASE_ANON_KEY: chave-de-ci-nao-funcional
+        run: npm run build
+
+      # Guarda o bundle do commit: dá para comparar tamanho entre releases
+      # e baixar o artefato quando o campo reportar tela estranha.
+      - name: Guardar o bundle
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 7

@@ -47,6 +47,7 @@ export const CLASSIF_OPTIONS = ['Emergencial', 'Urgente', 'Normal'];
 // histórico mora só no banco (os_campo.executor guarda o nome como texto;
 // a busca retroativa consulta os registros, não as opções).
 export const EXECUTOR_OPTIONS = ['Neilson', 'Queiroz', 'Emiliano', 'Serviço Externo'];
-// Saúde: MED 1 = março/2026. Junho (MED 4) está em fechamento agora e
-// julho (MED 5) é a vigente pelo calendário — por isso as duas abertas.
-export const MED_OPTIONS = ['', 'MED 4', 'MED 5'];
+// Saúde: MED 1 = março/2026 (âncora da planilha oficial). Agosto/2026 =
+// MED 6 vigente; MED 5 (julho) aberta p/ fechamento e MED 7 p/ despacho
+// antecipado (O.S. recusada migra pra seguinte — regra da Educação).
+export const MED_OPTIONS = ['', 'MED 5', 'MED 6', 'MED 7'];
