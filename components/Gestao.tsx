@@ -243,11 +243,11 @@ const EmptyEnsina: React.FC<{ miolo: React.ReactNode }> = ({ miolo }) => (
       <FluxoPassos />
     </Card>
     <div className="bg-fpv-700 text-white rounded-2xl p-4 text-sm font-medium leading-snug">
-      Na planilha antiga, <span className="font-black">141 serviços prontos</span> nunca viraram cobrança.
+      Na MED 02, serviço feito sem registro derrubou a medição para <span className="font-black">R$ 72 mil</span>.
       Este painel existe pra isso nunca mais acontecer.
     </div>
     <p className="text-[11px] text-stone-400 text-center">
-      Contrato 064/2025 · ~68 escolas · a primeira O.S. chega essa semana
+      Contrato 005/2026 · 32 unidades de saúde · numeração própria a partir da F-1
     </p>
   </div>
 );
@@ -526,7 +526,7 @@ const TelaEngenheiro: React.FC<Props> = ({ lista, aoEditar, aoMudar }) => {
             <text x="285" y="34" textAnchor="middle" fill="#185FA5" fontSize="11" fontWeight="bold">3</text>
           </svg>
           <h3 className="font-bold text-stone-900 text-lg">Sua rota monta sozinha.</h3>
-          <p className="text-sm text-stone-500 mt-1 mb-3">Quando as O.S. do campo caírem aqui, o app ordena as escolas por urgência e você só segue a fila.</p>
+          <p className="text-sm text-stone-500 mt-1 mb-3">Quando as O.S. do campo caírem aqui, o app ordena as unidades por urgência e você só segue a fila.</p>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-stone-600"><Camera size={15} className="text-amber-600 shrink-0" /> Foto — sem foto não mede</div>
             <div className="flex items-center gap-2 text-sm text-stone-600"><Ruler size={15} className="text-amber-600 shrink-0" /> Memória — as medidas valem dinheiro</div>
@@ -768,7 +768,7 @@ const TelaEngenheiro: React.FC<Props> = ({ lista, aoEditar, aoMudar }) => {
             <h3 className="font-bold text-lg text-stone-900">Rota fechada 💪</h3>
             <div className="grid grid-cols-3 gap-4 mt-4 w-full">
               <KpiNumero valor={assinadasHoje} rotulo="assinadas hoje" tone="fpv" />
-              <KpiNumero valor={fechadasHoje} rotulo="escolas visitadas" />
+              <KpiNumero valor={fechadasHoje} rotulo="unidades visitadas" />
               <KpiNumero valor={lista.filter(o => o.status !== 'Cancelada' && !(o.medicao || '') && selosDaOS(o).contagem === 5).length} rotulo={`prontas pra ${medAtual(lista)}`} tone="fpv" />
             </div>
             <p className="text-xs text-stone-400 mt-4">Amanhã o app monta a rota de novo.</p>
