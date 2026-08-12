@@ -164,7 +164,8 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
   };
 
   // um destinatário confirma o recebimento no login dele (spec)
-  const DESTINATARIOS = ['Equipe Leandro', 'Equipe Renato', ...EXECUTOR_OPTIONS];
+  // Thiago de volta às retiradas (Renan 12/08); equipes da Educação removidas
+  const DESTINATARIOS = [...EXECUTOR_OPTIONS, 'Thiago'];
 
   // O ALMOXARIFE É O CONTROLADOR DOS EMERGENCIAIS (lição #1 da expansão:
   // o fluxo real começa no balcão — o campo pega material ANTES de
@@ -189,7 +190,7 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
 
     // gera a O.S. EMERGENCIAL no balcão e já vincula a saída a ela
     if (gerarOS && !osRef) {
-      if (!saida.escola.trim()) { setMsg('Para gerar a O.S. informe a ESCOLA.'); return; }
+      if (!saida.escola.trim()) { setMsg('Para gerar a O.S. informe a UNIDADE.'); return; }
       if (!dest) { setMsg('Para gerar a O.S. informe QUEM RETIROU (é o executor dela).'); return; }
       setSalvando(true); setMsg('');
       const executor = EXECUTOR_OPTIONS.find(x => norm(x) === norm(dest)) || '';
@@ -287,7 +288,7 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
   };
   const entregarFerr = async (f: Ferramenta) => {
     const quem = prompt(`Entregar "${f.descricao}" para quem? (encarregado/equipe)`); if (!quem) return;
-    const obra = prompt('Em qual obra/escola?') || '';
+    const obra = prompt('Em qual obra/unidade?') || '';
     // elo opcional com a O.S. (Renan/Lucas 06/07): rastreia não só COM
     // QUEM está, mas EM QUAL SERVIÇO — sem virar baixa de estoque
     const osRef = (prompt('Vinculada a alguma O.S.? (opcional — nº, L/M-nº ou F-nº)') || '').trim();
@@ -305,7 +306,7 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
   // 06/07: "precisa acessar os dados de onde foi parar")
   const editarVinculoFerr = async (f: Ferramenta) => {
     const quem = prompt('Com quem está?', f.com_quem || ''); if (quem == null) return;
-    const obra = prompt('Em qual obra/escola?', f.obra || ''); if (obra == null) return;
+    const obra = prompt('Em qual obra/unidade?', f.obra || ''); if (obra == null) return;
     const osAtual = (f.obs || '').replace(/^O\.S\.\s*/i, '').trim();
     const osRef = (prompt('O.S. vinculada (vazio = sem vínculo):', osAtual) ?? osAtual).trim();
     const { error } = await supabase.from('ferramenta').update({
@@ -570,16 +571,16 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
                 </select></div>
             </div>
             <div><label className="block text-[11px] font-bold uppercase text-stone-500 mb-1"><Link2 size={11} className="inline mr-1" />O.S. vinculada (o coração do cruzamento)</label>
-              <input list="refs-os" value={saida.os_ref} onChange={e => escolheuOS(e.target.value)} placeholder="nº oficial, L/M-nº ou F-nn — escolher puxa a escola" className="w-full border-2 border-fpv-100 rounded-lg px-3 py-2.5 text-sm bg-fpv-50/40 outline-none focus:border-fpv-500" />
+              <input list="refs-os" value={saida.os_ref} onChange={e => escolheuOS(e.target.value)} placeholder="nº oficial, L/M-nº ou F-nn — escolher puxa a unidade" className="w-full border-2 border-fpv-100 rounded-lg px-3 py-2.5 text-sm bg-fpv-50/40 outline-none focus:border-fpv-500" />
               <datalist id="refs-os">{refsOS.map(r => <option key={r.rotulo} value={r.ref}>{r.rotulo}</option>)}</datalist>
               {!(saida.os_ref || '').trim() && (
                 <label className={`mt-2 flex items-center gap-2 text-xs font-bold px-3 py-2.5 rounded-xl cursor-pointer border ${gerarOS ? 'bg-red-600 text-white border-red-600' : 'bg-red-50 text-red-700 border-red-200'}`}>
                   <input type="checkbox" checked={gerarOS} onChange={e => setGerarOS(e.target.checked)} className="hidden" />
-                  <Siren size={14} /> {gerarOS ? 'VAI GERAR a O.S. emergencial ao salvar (escola + quem retirou obrigatórios)' : 'Emergência SEM O.S.? Toque aqui — o sistema gera a O.S. e vincula'}
+                  <Siren size={14} /> {gerarOS ? 'VAI GERAR a O.S. emergencial ao salvar (unidade + quem retirou obrigatórios)' : 'Emergência SEM O.S.? Toque aqui — o sistema gera a O.S. e vincula'}
                 </label>
               )}</div>
             <div className="grid grid-cols-2 gap-3">
-              <div><label className="block text-[11px] font-bold uppercase text-stone-500 mb-1">Escola / destino</label>
+              <div><label className="block text-[11px] font-bold uppercase text-stone-500 mb-1">Unidade / destino</label>
                 <input list="escolas-almox" value={saida.escola} onChange={e => setSaida(p => ({ ...p, escola: e.target.value }))} className={inputCls} />
                 <datalist id="escolas-almox">{ESCOLAS.map(e2 => <option key={e2} value={e2} />)}</datalist></div>
               <div><label className={`block text-[11px] font-bold uppercase mb-1 ${(saida.destinatario || '').trim() ? 'text-stone-500' : 'text-amber-600'}`}>Quem retirou (confirma no login)</label>
@@ -604,7 +605,7 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
               </select>
               <div className="relative">
                 <Search size={13} className="absolute left-2.5 top-2 text-stone-400" />
-                <input value={buscaLista} onChange={e => setBuscaLista(e.target.value)} placeholder="material, escola, O.S…" className="pl-7 pr-2 py-1 text-xs border border-stone-200 rounded-lg bg-stone-50 outline-none focus:border-fpv-500 w-40" />
+                <input value={buscaLista} onChange={e => setBuscaLista(e.target.value)} placeholder="material, unidade, O.S…" className="pl-7 pr-2 py-1 text-xs border border-stone-200 rounded-lg bg-stone-50 outline-none focus:border-fpv-500 w-40" />
               </div>
             </div>
             <ListaSaidas limite={mostrar} />

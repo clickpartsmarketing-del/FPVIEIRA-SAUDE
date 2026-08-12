@@ -17,7 +17,7 @@ type Aba = 'chat' | 'nova' | 'lista' | 'almox' | 'gestao' | 'fechamento' | 'pain
 
 // versão visível no cabeçalho — se o campo reportar tela antiga,
 // primeiro confere este número (cache de bundle no celular!)
-const VERSAO = 'v4'; // v4 = grafias do Anexo I conferidas pelo Renan (Naelma Monteira)
+const VERSAO = 'v5'; // v5 = almox: Thiago nas retiradas, "unidade" no lugar de "escola"
 
 // casa o prefixo do e-mail com o nome do executor (gilson → Gilson,
 // carlosalberto → Carlos Alberto) p/ a visão "Minhas O.S." do encarregado
