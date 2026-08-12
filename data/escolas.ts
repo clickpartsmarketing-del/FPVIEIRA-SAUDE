@@ -9,16 +9,16 @@
 // digita/vê), complemento oficial entre parênteses. O nº do Anexo I está
 // no comentário de cada linha — é a ponte para a medição oficial.
 //
-// ⚠ Grafias a conferir no papel (foto com resolução limite): "Cória
-// Gomes da Silva" (nº 4), "Paulo H. Gussen" (nº 13), "Naelma Monteiro"
-// (nº 21).
+// Grafias conferidas pelo Renan contra o papel em 12/08/2026: Cória
+// Gomes da Silva (4), ESF Clínica da Família Paulo H. Gussen (13),
+// Naelma Monteira (21), COGA (7).
 // ⚠ Zonas de fiscal ainda não definidas no Saúde: tudo nasce 'SEMUSA';
 // quando o Leony definir os fiscais, preencher o de-para abaixo.
 
 export const ESCOLAS = [
   // ---- grandes unidades ----
   "SEMUSA (Sede)",                                        // 32
-  "Hospital Municipal Naelma Monteiro (HMNM)",            // 21
+  "Hospital Municipal Naelma Monteira (HMNM)",            // 21
   "Pronto Socorro Maria Rosa da Conceição",               // 23
   "UPA Valmir Hespanhol",                                 // 31
   "Farmácia Municipal",                                   // 20
