@@ -14,5 +14,5 @@
     "types": ["vite/client"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["supabase/functions", "node_modules", "dist"]
+  "exclude": ["supabase/functions", "node_modules", "dist", "seguranca", "n8n", "legado-educacao"]
 }

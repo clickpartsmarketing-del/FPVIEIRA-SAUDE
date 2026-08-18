@@ -1,6 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
+import { readFileSync } from 'node:fs';
+
+// VERSÃO VISÍVEL NO APP — vem do package.json, não da memória de ninguém
+// (lição da Educação: commit v72 subiu mostrando v71 por bump manual
+// esquecido). Subir versão = editar só o package.json.
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
+const VERSAO = 'v' + String(pkg.version).split('.')[0];
 
 // Multi-página: o app React (index) + as duas ferramentas standalone da
 // fase 1, que continuam publicadas nas mesmas URLs (/painel.html é o
@@ -8,6 +15,9 @@ import { fileURLToPath, URL } from 'node:url';
 // pacote de junho do Edmar). Elas não dependem de Supabase.
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(VERSAO),
+  },
   build: {
     rollupOptions: {
       input: {

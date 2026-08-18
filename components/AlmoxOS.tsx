@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PackageMinus, PackagePlus, Save, Loader2, Trash2, Link2, Undo2, Pencil, Search, TrendingUp, BarChart3, Boxes, Wrench, Inbox, Camera, CheckCircle2, Siren } from 'lucide-react';
+import { PackageMinus, PackagePlus, Save, Loader2, Trash2, Link2, Undo2, Pencil, Search, TrendingUp, BarChart3, Boxes, Wrench, Inbox, Camera, CheckCircle2, Siren, Construction } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { osService } from '../services/osService';
 import { OSCampo, refDaOS, EXECUTOR_OPTIONS } from '../types';
@@ -35,6 +35,16 @@ interface Solicitacao {
   id?: number; data: string; solicitante: string; os_ref?: string | null;
   itens: string; status: string; criado_em?: string;
 }
+// ANDAIME (portado da Educação v76 em 18/08): patrimônio PRÓPRIO, fora do
+// contrato — NÃO entra em saida_material (que alimenta a medição/EMOP).
+// Catálogo de peças + movimentos com retorno: disponível = total − abertos.
+interface AndaimeItem {
+  id?: number; descricao: string; quantidade_total: number; obs?: string | null;
+}
+interface AndaimeMov {
+  id?: number; item_id: number; quantidade: number; obra?: string | null;
+  com_quem?: string | null; os_ref?: string | null; saida: string; volta?: string | null;
+}
 
 const CATEGORIAS = ['ELÉTRICA', 'HIDRÁULICA', 'ESGOTO', 'CIVIL', 'PINTURA', 'FERRAMENTAS', 'DIVERSOS'];
 const hoje = () => hojeLocal();
@@ -44,7 +54,7 @@ const SAIDA_VAZIA: Saida = { data: hoje(), descricao: '', quantidade: 1, unidade
 const ITEM_VAZIO: ItemEstoque = { descricao: '', categoria: 'DIVERSOS', unidade: 'UND', qtd_minima: 0, saldo_inicial: 0 };
 const ENTRADA_VAZIA: Entrada = { data: hoje(), descricao: '', quantidade: 1, unidade: 'UND', origem: 'COMPRA', obs: '' };
 
-type SubAba = 'stats' | 'saida' | 'cadastro' | 'estoque' | 'ferramentas' | 'solicitacoes';
+type SubAba = 'stats' | 'saida' | 'cadastro' | 'estoque' | 'ferramentas' | 'andaime' | 'solicitacoes';
 
 const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: string }> = ({ listaOS, ehGestor = false, usuario = '' }) => {
   const [sub, setSub] = useState<SubAba>('stats');
@@ -58,6 +68,11 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
   const [entrada, setEntrada] = useState<Entrada>({ ...ENTRADA_VAZIA });
   const [nfFoto, setNfFoto] = useState<File | null>(null);
   const [novaFerr, setNovaFerr] = useState({ descricao: '', quantidade: 1 });
+  const [andItens, setAndItens] = useState<AndaimeItem[]>([]);
+  const [andMovs, setAndMovs] = useState<AndaimeMov[]>([]); // só os em aberto (volta null)
+  const [novoAnd, setNovoAnd] = useState({ descricao: '', quantidade: 1 });
+  const [andAberto, setAndAberto] = useState<number | null>(null);
+  const [faltaAndaime, setFaltaAndaime] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [msg, setMsg] = useState('');
   const [buscaLista, setBuscaLista] = useState('');
@@ -87,16 +102,24 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
     if (!rf.error && rf.data) setFerramentas(rf.data as Ferramenta[]);
     if (!rq.error && rq.data) setSolicitacoes(rq.data as Solicitacao[]);
     setFaltaSQL(!!ri.error && /estoque_item/.test(ri.error.message));
+    // andaime é módulo novo: sem a migration 0006 a aba avisa em vez de quebrar
+    const [ra1, ra2] = await Promise.all([
+      supabase.from('andaime_item').select('*').order('descricao'),
+      supabase.from('andaime_movimento').select('*').is('volta', null).order('saida'),
+    ]);
+    if (!ra1.error && ra1.data) setAndItens(ra1.data as AndaimeItem[]);
+    if (!ra2.error && ra2.data) setAndMovs(ra2.data as AndaimeMov[]);
+    setFaltaAndaime(!!ra1.error && /andaime/.test(ra1.error.message));
   };
   useEffect(() => { carregar(); }, []);
 
   // TEMPO REAL: pedido da equipe, saída, entrada ou devolução pinga na
-  // tela do João sem apertar nada (debounce contra rajadas)
+  // tela do Lorran sem apertar nada (debounce contra rajadas)
   useEffect(() => {
     let t: any;
     const bump = () => { clearTimeout(t); t = setTimeout(carregar, 1200); };
     const ch = supabase.channel('rt-almox');
-    for (const tb of ['saida_material', 'solicitacao_material', 'estoque_item', 'entrada_material', 'ferramenta']) {
+    for (const tb of ['saida_material', 'solicitacao_material', 'estoque_item', 'entrada_material', 'ferramenta', 'andaime_item', 'andaime_movimento']) {
       ch.on('postgres_changes', { event: '*', schema: 'public', table: tb }, bump);
     }
     ch.subscribe();
@@ -318,7 +341,51 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
     setMsg(`✏️ ${f.descricao}: vínculo atualizado.`); carregar();
   };
 
-  // REV 001 do gestor: João edita descrição/unidade/mínimo; a CONTAGEM
+  // ===== ANDAIME (patrimônio fora do contrato — portado da Educação v76) =====
+  const disponivelAnd = (i: AndaimeItem) =>
+    Number(i.quantidade_total || 0) - andMovs.filter(m => m.item_id === i.id).reduce((t, m) => t + Number(m.quantidade || 0), 0);
+  const criarAndaime = async () => {
+    if (!novoAnd.descricao.trim()) { setMsg('Informe a peça de andaime.'); return; }
+    const { error } = await supabase.from('andaime_item').insert([{ descricao: novoAnd.descricao.trim().toUpperCase(), quantidade_total: novoAnd.quantidade }]);
+    if (error) { setMsg(/andaime/.test(error.message) ? '⚠️ Rode a migration 0006_andaime.sql primeiro (SQL Editor).' : 'Erro: ' + error.message); return; }
+    setNovoAnd({ descricao: '', quantidade: 1 }); setMsg('✅ Peça de andaime cadastrada.'); carregar();
+  };
+  // envio PARCIAL por natureza: andaime sai em lote (12 painéis p/ uma unidade)
+  const enviarAndaime = async (i: AndaimeItem) => {
+    const disp = disponivelAnd(i);
+    if (disp <= 0) { setMsg(`Sem saldo no pátio de ${i.descricao}.`); return; }
+    const qtd = parseFloat(prompt(`Quantas unidades de "${i.descricao}"? (no pátio: ${disp})`, String(disp)) || '');
+    if (!qtd || qtd <= 0) return;
+    if (qtd > disp) { setMsg(`Só há ${disp} no pátio de ${i.descricao}.`); return; }
+    const obra = prompt('Para qual obra/unidade?'); if (obra == null || !obra.trim()) return;
+    const quem = prompt('Com quem (responsável)?') || '';
+    const { error } = await supabase.from('andaime_movimento').insert([{ item_id: i.id, quantidade: qtd, obra: obra.trim(), com_quem: quem.trim() || null, saida: hoje() }]);
+    if (error) { setMsg('Erro: ' + error.message); return; }
+    setMsg(`🏗 ${qtd}× ${i.descricao} → ${obra.trim()}.`); carregar();
+  };
+  const voltouAndaime = async (m: AndaimeMov, i: AndaimeItem) => {
+    if (!confirm(`Confirmar retorno de ${m.quantidade}× ${i.descricao} de ${m.obra || '?'}?`)) return;
+    const { error } = await supabase.from('andaime_movimento').update({ volta: hoje() }).eq('id', m.id);
+    if (error) { setMsg('Erro: ' + error.message); return; }
+    setMsg(`↩️ ${m.quantidade}× ${i.descricao} de volta ao pátio.`); carregar();
+  };
+  const editarAndaime = async (i: AndaimeItem) => {
+    const desc = prompt('Peça (descrição):', i.descricao); if (desc == null || !desc.trim()) return;
+    const qt = parseFloat(prompt('Quantidade TOTAL (patrimônio):', String(i.quantidade_total)) || '');
+    if (!qt || qt <= 0) return;
+    const { error } = await supabase.from('andaime_item').update({ descricao: desc.trim().toUpperCase(), quantidade_total: qt }).eq('id', i.id);
+    if (error) { setMsg('Erro: ' + error.message); return; }
+    setMsg(`✏️ ${desc.trim()} atualizado.`); carregar();
+  };
+  const excluirAndaime = async (i: AndaimeItem) => {
+    const fora = andMovs.filter(m => m.item_id === i.id).length;
+    if (!confirm(`Apagar "${i.descricao}" do andaime?${fora ? `\n⚠️ Há ${fora} movimento(s) em aberto — somem junto.` : ''}\n(Use só p/ cadastro errado — retorno é o "← voltou".)`)) return;
+    const { error } = await supabase.from('andaime_item').delete().eq('id', i.id);
+    if (error) { setMsg('Erro: ' + error.message); return; }
+    setMsg(`🗑 ${i.descricao} apagado do andaime.`); carregar();
+  };
+
+  // REV 001 do gestor: Lorran edita descrição/unidade/mínimo; a CONTAGEM
   // (saldo inicial) só a gestão ajusta — separação de funções
   const editarItem = async (i: ItemEstoque) => {
     const desc = prompt('Descrição do item:', i.descricao); if (desc == null || !desc.trim()) return;
@@ -461,6 +528,7 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
         <SubBtn id="cadastro" icon={PackagePlus} rot="Cadastro" />
         <SubBtn id="estoque" icon={Boxes} rot="Estoque" />
         <SubBtn id="ferramentas" icon={Wrench} rot="Ferramentas" />
+        <SubBtn id="andaime" icon={Construction} rot="Andaime" />
         <SubBtn id="solicitacoes" icon={Inbox} rot="Pedidos" badge={pedidosAbertos.length} />
       </div>
 
@@ -754,10 +822,63 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
             };
             const emCampo = ferramentas.filter(f => f.status === 'EM CAMPO');
             const noEstoque = ferramentas.filter(f => f.status !== 'EM CAMPO');
+            // PLACAR DE SALDO (portado da Educação v74): a tela listava mas não
+            // SOMAVA. Soma por UNIDADE (quantidade), não por cadastro: carrinho
+            // de mão 4x conta 4. +7 dias em campo = cobrar devolução.
+            const unid = (fs: Ferramenta[]) => fs.reduce((t, f) => t + Number(f.quantidade || 1), 0);
+            // T12:00 evita o off-by-one de fuso ao parsear data pura (padrão hojeLocal)
+            const fora7 = emCampo.filter(f => f.desde && (Date.now() - new Date(f.desde + 'T12:00:00').getTime()) / 86400000 >= 7);
+            // SALDO UNITÁRIO POR FERRAMENTA (v75): itens numerados ("SERRA
+            // MÁRMORE 01/02/03") viram uma FAMÍLIA só, com o saldo ao lado.
+            // O sufixo removido é apenas "número (+1 letra)" no FIM: "MARTELETE
+            // 5KG" e "ESCADA 7 DEGRAUS" não são tocados.
+            const familia = (d: string) => d.trim().toUpperCase().replace(/\s+\d+\s*[A-ZÀ-Ü]?$/, '').replace(/\s{2,}/g, ' ').trim() || d.trim().toUpperCase();
+            const familias: Record<string, { total: number; campo: number }> = {};
+            for (const f of ferramentas) {
+              const k = familia(f.descricao);
+              const q = Number(f.quantidade || 1);
+              (familias[k] = familias[k] || { total: 0, campo: 0 }).total += q;
+              if (f.status === 'EM CAMPO') familias[k].campo += q;
+            }
             const grupos: Record<string, Ferramenta[]> = {};
             for (const f of emCampo) { const k = (f.com_quem || 'Sem responsável').trim(); (grupos[k] = grupos[k] || []).push(f); }
             return (
               <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-stone-50 border border-stone-200 rounded-xl py-2">
+                    <div className="text-lg font-bold text-stone-800">{unid(ferramentas)}</div>
+                    <div className="text-[10px] text-stone-500 font-medium">UNIDADES NO TOTAL</div>
+                  </div>
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl py-2">
+                    <div className="text-lg font-bold text-amber-800">{unid(emCampo)}</div>
+                    <div className="text-[10px] text-amber-700 font-medium">EM CAMPO</div>
+                  </div>
+                  <div className="bg-fpv-50 border border-fpv-100 rounded-xl py-2">
+                    <div className="text-lg font-bold text-fpv-700">{unid(noEstoque)}</div>
+                    <div className="text-[10px] text-fpv-700 font-medium">NO ESTOQUE</div>
+                  </div>
+                </div>
+                {fora7.length > 0 && (
+                  <p className="text-[11px] font-bold text-red-700 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+                    ⏰ {fora7.length} ferramenta(s) em campo há 7+ dias — cobrar devolução
+                  </p>
+                )}
+                {/* saldo de cada ferramenta ao lado do nome — rolagem rápida do Lorran */}
+                {Object.keys(familias).length > 0 && (
+                  <div>
+                    <div className="text-xs font-bold text-stone-500 mb-1.5">📊 Saldo por ferramenta</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                      {Object.entries(familias).sort((a, b) => a[0].localeCompare(b[0])).map(([nome, s]) => (
+                        <div key={nome} className="flex items-center justify-between gap-2 border border-stone-100 rounded-lg px-2.5 py-1 text-[12px]">
+                          <span className="truncate font-medium text-stone-700">{nome}</span>
+                          <span className={`shrink-0 font-bold ${s.total - s.campo === 0 ? 'text-amber-700' : 'text-fpv-700'}`}>
+                            {s.total - s.campo}/{s.total} no estoque{s.campo > 0 ? ` · ${s.campo} em campo` : ''}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {Object.entries(grupos).sort((a, b) => a[0].localeCompare(b[0])).map(([quem, fs]) => (
                   <div key={quem}>
                     <div className="text-xs font-bold text-amber-800 mb-1.5">🧰 {quem} <span className="font-medium text-amber-600">({fs.reduce((t, f) => t + Number(f.quantidade || 1), 0)} item(ns) em campo)</span></div>
@@ -766,13 +887,64 @@ const AlmoxOS: React.FC<{ listaOS: OSCampo[]; ehGestor?: boolean; usuario?: stri
                 ))}
                 {noEstoque.length > 0 && (
                   <div>
-                    <div className="text-xs font-bold text-stone-500 mb-1.5">📦 No estoque ({noEstoque.length})</div>
+                    <div className="text-xs font-bold text-stone-500 mb-1.5">📦 No estoque ({unid(noEstoque)} unid · {noEstoque.length} cadastros)</div>
                     <div className="space-y-1.5">{noEstoque.map(linha)}</div>
                   </div>
                 )}
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {/* ============ ANDAIME (patrimônio fora do contrato) ============ */}
+      {sub === 'andaime' && (
+        <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-5 space-y-3">
+          <h2 className="font-bold text-stone-900 text-sm">Andaime — patrimônio próprio <span className="text-stone-400 font-medium">(fora do contrato, não entra na medição)</span></h2>
+          {faltaAndaime && (
+            <p className="text-[12px] font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              ⚠️ Módulo novo: peça ao Renan para rodar a migration <b>0006_andaime.sql</b> no SQL Editor do Supabase — a aba liga sozinha depois.
+            </p>
+          )}
+          <div className="flex gap-2">
+            <input value={novoAnd.descricao} onChange={e => setNovoAnd(p => ({ ...p, descricao: e.target.value }))} placeholder="ex.: PAINEL 1,00 X 1,00" className={inputCls} />
+            <input type="number" min="1" value={novoAnd.quantidade} onChange={e => setNovoAnd(p => ({ ...p, quantidade: parseFloat(e.target.value) || 1 }))} className="w-20 border border-stone-200 rounded-lg px-3 py-2.5 text-sm bg-stone-50 outline-none focus:border-fpv-500" />
+            <button onClick={criarAndaime} className="bg-fpv-500 hover:bg-fpv-600 text-white font-bold px-4 rounded-xl text-sm">＋</button>
+          </div>
+          {!faltaAndaime && andItens.length === 0 && <p className="text-sm text-stone-400 text-center py-4">Nenhuma peça cadastrada — comece pelo ＋ (descrição + quantidade total).</p>}
+          <div className="space-y-1.5">
+            {andItens.map(i => {
+              const movs = andMovs.filter(m => m.item_id === i.id);
+              const fora = movs.reduce((t, m) => t + Number(m.quantidade || 0), 0);
+              const disp = Number(i.quantidade_total || 0) - fora;
+              const aberta = andAberto === i.id;
+              return (
+                <div key={i.id} className={`border rounded-xl px-3 py-2 text-sm ${fora > 0 ? 'border-amber-200 bg-amber-50/50' : 'border-stone-100'}`}>
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => setAndAberto(aberta ? null : (i.id ?? null))} className="flex-1 min-w-0 text-left truncate">
+                      <b>{i.descricao}</b>
+                      <span className={`text-[11px] font-bold ${disp === 0 ? 'text-amber-700' : 'text-fpv-700'}`}> · {disp}/{i.quantidade_total} no pátio{fora > 0 ? ` · ${fora} em obra` : ''}</span>
+                      <span className="text-[10px] text-stone-400"> {aberta ? '▲' : '▼'}</span>
+                    </button>
+                    <button onClick={() => editarAndaime(i)} title="Corrigir descrição/quantidade total" className="p-1 text-stone-300 hover:text-fpv-600 shrink-0"><Pencil size={13} /></button>
+                    <button onClick={() => excluirAndaime(i)} title="Apagar cadastro errado" className="p-1 text-stone-300 hover:text-red-500 shrink-0"><Trash2 size={13} /></button>
+                    <button onClick={() => enviarAndaime(i)} className="text-[11px] font-bold text-fpv-700 bg-fpv-50 border border-fpv-100 rounded-full px-3 py-1 shrink-0">enviar →</button>
+                  </div>
+                  {aberta && (
+                    <div className="mt-1.5 pt-1.5 border-t border-amber-100 text-[11px] text-stone-600 space-y-1">
+                      {movs.length === 0 && <p>📦 Tudo no pátio — nenhum movimento em aberto.</p>}
+                      {movs.map(m => (
+                        <div key={m.id} className="flex items-center gap-2">
+                          <span className="flex-1">🏗 {m.quantidade}× em <b>{m.obra || '?'}</b> · {m.com_quem || 'sem responsável'} · desde {m.saida ? m.saida.split('-').reverse().join('/') : '—'}</span>
+                          <button onClick={() => voltouAndaime(m, i)} className="text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 rounded-full px-3 py-1 shrink-0">← voltou</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

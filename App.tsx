@@ -17,7 +17,10 @@ type Aba = 'chat' | 'nova' | 'lista' | 'almox' | 'gestao' | 'fechamento' | 'pain
 
 // versão visível no cabeçalho — se o campo reportar tela antiga,
 // primeiro confere este número (cache de bundle no celular!)
-const VERSAO = 'v5'; // v5 = almox: Thiago nas retiradas, "unidade" no lugar de "escola"
+// v6: deixou de ser digitada aqui. Vem do package.json via vite.config
+// (lição da Educação v72/v74: bump manual esquecido = produção mentindo a versão).
+declare const __APP_VERSION__: string;
+const VERSAO = __APP_VERSION__;
 
 // casa o prefixo do e-mail com o nome do executor (gilson → Gilson,
 // carlosalberto → Carlos Alberto) p/ a visão "Minhas O.S." do encarregado
